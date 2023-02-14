@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: sum
+# key: sum
+# condition: (and (texmathp) 'auto)
+# --
+\sum\limits_{${1:x=1}}^{$2} $0

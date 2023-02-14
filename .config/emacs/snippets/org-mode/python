@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: python
+# key: cdp
+# --
+#+begin_src python :session py :async
+$0
+#+end_src

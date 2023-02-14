@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: norm2
+# key: norm2
+# condition: (and (texmathp) 'auto)
+# --
+\lVert{${1:u}}\rVert^{2}$0

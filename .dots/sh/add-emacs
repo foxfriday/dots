@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+#
+
+source ./repo-functions.sh
+
+command -v checkinstall > /dev/null ||
+    { echo "missing checkinstall requirement"; exit 1; }
+
+# Common flags for check install.
+declare -a CHKINS
+CHKINS+=(--backup=no
+         --default
+         --deldesc=yes
+         --deldoc=yes
+         --delspec=yes)
+
+# Emacs compilation flags
+declare -a EMACS
+EMACS+=(--with-cairo
+        --with-json
+        --with-mailutils
+        --with-modules
+        --with-native-compilation=aot
+        --with-pgtk
+        --with-tree-sitter)
+
+# Destination
+DEST="${HOME}/Repos/system"
+
+# Compiler
+COMPILER=gcc-12
+command -v "${COMPILER}" > /dev/null || { echo "${COMPILER} not found, please set new compiler."; exit 1; }
+
+mkdir -p "${DEST}"
+
+get_or_update "${DEST}"/tree-sitter tree-sitter/tree-sitter master
+if (( UPDATED > 0 )); then
+    cd "${DEST}/tree-sitter" || { echo "unable to enter local repository" >&2; exit 1; }
+    VERSION=$(grep -E -o '^VERSION ?:= ?[0-9\.]+' Makefile | grep -E -o '[0-9\.]+')
+    [[ -z "${VERSION}" ]] && { echo "Unable to determine tree-sitter version" >&2; exit 1; }
+    make
+    read -p "Install tree-sitter ${VERSION}? y/n" -r CHOICE
+    case $CHOICE in
+        y|Y ) echo "Installing with checkinstall..." ;;
+        * ) echo "Aborting" >&2; exit 1; ;;
+    esac
+    sudo checkinstall --pkgname tree-sitter --pkgversion "${VERSION}" --provides tree-sitter "${CHKINS[@]}"
+    TSPKG=$(find . -type f -name "tree-sitter_${VERSION}*.deb")
+    [[ -z "${TSPKG}" ]] && { echo "Checkinstall failed..." >&2; exit 1; }
+    sudo ldconfig
+    make clean
+    sudo rm "${TSPKG}"
+fi
+
+
+get_or_update "${DEST}"/emacs https://git.savannah.gnu.org/git/emacs.git
+if (( UPDATED > 0 )); then
+    cd "${DEST}/emacs" || { echo "unable to enter local repository" >&2; exit 1; }
+    ./autogen.sh
+    mkdir build
+    cd ./build || { echo "unable to enter build directory" >&2; exit 1; }
+
+    DT=$(date "+%Y-%m-%dT%H:%M:%S")
+    LOG="config_${DT}.log"
+    CC="${COMPILER}" ../configure "${EMACS[@]}" &> "${LOG}"
+    vim "${LOG}"
+    read -p "Compile? y/n" -r CHOICE
+    case $CHOICE in
+        y|Y ) echo "Installing with checkinstall..." ;;
+        * ) echo "Aborting" >&2; exit 1; ;;
+    esac
+    CC="${COMPILER}" make
+    VERSION=$(grep -E -o "^PACKAGE_VERSION ?= ?'?[0-9\.]+'?" ../configure | grep -E -o '[0-9\.]+')
+    [[ -z "${VERSION}" ]] && { echo "Unable to determine Emacs version" >&2; exit 1; }
+    read -p "Install Emacs ${VERSION}? y/n" -r CHOICE
+    case $CHOICE in
+        y|Y ) echo "Installing with checkinstall..." ;;
+        * ) echo "Aborting" >&2; exit 1; ;;
+    esac
+    sudo checkinstall --pkgname "${BRANCH}" --pkgversion "${VERSION}"  "${CHKINS[@]}"
+    EPKG=$(find . -type f -name "emacs_${VERSION}*.deb")
+    if [[ -z "${EPKG}" ]]; then
+        make clean
+    	cd "${DEST}/emacs" || { echo "unable to re-enter local repository" >&2; exit 1; }
+    	sudo rm -r "${DEST}/emacs/build"
+    else
+	echo "Checkinstall failed..." >&2
+	echo "Exiting without cleaning repository."
+	exit 1
+    fi
+fi
+
+get_or_update "${DEST}"/tree-sitter-module casouri/tree-sitter-module
+if (( UPDATED > 0 )); then
+    echo "Tree Sitter modules was updated!"
+    echo "modules must be build manually after inspecting scripts"
+    echo "the compiled modules should be in Emacs' 'treesit-extra-load-path'"
+    echo "See ${DEST}/tree-sitter-module"
+fi

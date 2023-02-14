@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+#
+# wireguard most be installed
+#
+# Wireguard files should be downloaded the name of the
+# connection will be the name of the configuration files. nmcli con import type wireguard
+# file <file>
+
+if [[ "$EUID" -ne 0 ]]; then
+  echo "Setup must be run as root" >&2
+  exit 1
+fi
+
+# The first value will be set as default + autoconnect
+WG=($(nmcli con show | grep wireguard | cut -d' ' -f1 | tr '\n' ' ' ))
+
+# No ipv6, auto connect to first only
+AUTOCONNECT=yes
+for CONN in "${WG[@]}"; do
+    echo nmcli con modify "${CONN}" ipv6.method "disabled"
+    echo nmcli con mod "${CONN}" connection.autoconnect "${AUTOCONNECT}"
+    AUTOCONNECT=no
+done
+
+echo "Autoconnect Settings:"
+echo ""
+nmcli -f name,autoconnect connection
+
+# killswitch
+echo "Setting killswitch"
+ufw reset
+ufw default deny outgoing
+ufw default deny incoming
+# whitelist the LAN
+ufw allow in to 192.168.1.0/24
+ufw allow out to 192.168.1.0/24
+# allow exception to the vpn
+for CONN in "${WG[@]}"; do
+   EP=($(grep endpoint < /etc/NetworkManager/system-connections/"${CONN}".nmconnection | cut -d= -f2 | tr : ' '))
+   if [[ -v EP[0] ]] && [[ -v EP[1] ]]; then
+       ufw allow out to "${EP[0]}" port "${EP[1]}" proto udp
+       # send everything on VPN tunnel (equivalent to tun0 for openVPN)
+       ufw allow out on "${CONN}" from any to any
+       # Enable for bit torrent
+       # ufw allow in on "${CONN}" from any to any
+   else
+       echo "Unable to determine endpoint for ${CONN}" >&2
+       echo "Skipped" >&2
+       contninue
+   fi
+done
+
+# Enable ufw if needed
+{ ufw status | grep inactive; } && ufw enable
+echo "Rules:"
+ufw status verbose

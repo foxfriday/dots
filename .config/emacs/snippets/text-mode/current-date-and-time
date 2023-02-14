@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: current-date-and-time
+# key: dtt
+# --
+`(format-time-string "%Y-%m-%d %H:%M")`$0

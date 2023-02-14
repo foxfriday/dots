@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: pbib
+# key: pbib
+# --
+#+PRINT_BIBLIOGRAPHY:
+$0

@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: matrixdiagonal
+# key: matd
+# condition: (and (texmathp) 'auto)
+# --
+\begin{${1::$$(yas-choose-value '("pmatrix" "vmatrix" "Vmatrix"))}}
+ $2_{1} &  &  & \\\\
+ & $2_{2} &  & \\\\
+ &  &  \ddots & \\\\
+ &  &   & $2_{3}
+\end{$1} $0

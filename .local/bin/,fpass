@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+#
+# A small fzf wrapper for pass.
+# It passes all flags to pass
+
+if [[ -v PASSWORD_STORE_DIR ]]; then
+    PDIR="${PASSWORD_STORE_DIR}"
+else
+    PDIR=~/.password-store
+fi
+
+SELECTED=$(
+    find "${PDIR}" -type f -iname \*.gpg -exec realpath --relative-to "${PDIR}" {} \; |
+        fzf -i \
+            -e \
+            +s \
+            --reverse \
+            --ansi \
+            --no-multi \
+            --height 20%
+)
+
+[[ -n "${SELECTED}" ]] && { pass "$@" "${SELECTED%.gpg}"; }

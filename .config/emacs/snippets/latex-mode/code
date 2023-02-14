@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: code
+# key: cd
+# --
+\begin{lstlisting}
+$0
+\end{lstlisting}

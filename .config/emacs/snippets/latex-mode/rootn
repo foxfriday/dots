@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: rootn
+# key: rtn
+# condition: (and (texmathp) 'auto)
+# --
+\sqrt[${1:2}]{$2} $0

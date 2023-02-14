@@ -1,0 +1,16 @@
+[user]
+    name=M. Rincon
+    email=53628427+foxfriday@users.noreply.github.com
+    useConfigOnly=true
+[core]
+    autocrlf=input
+    safecrlf=true
+[init]
+    defaultBranch=main
+[alias]
+    hist=log --reverse --color=always --format="%C(cyan)%h' '%C(blue)%as:%an' '%C(auto)%s"
+[merge]
+    tool=vimdiff
+    conflictstyle=diff3
+[pull]
+    rebase=false

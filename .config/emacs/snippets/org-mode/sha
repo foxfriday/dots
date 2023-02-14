@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: sha
+# key: cdsa
+# --
+#+begin_src sh :session sh :async
+$0
+#+end_src

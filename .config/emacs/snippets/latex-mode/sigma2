@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: sigma2
+# key: sig2
+# condition: (and (texmathp) 'auto)
+# --
+\sigma^{2}_{${1:x}}$0

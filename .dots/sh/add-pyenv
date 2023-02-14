@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+#
+# add pyenv
+
+source repo-functions.sh
+
+get_or_update "${HOME}"/.pyenv pyenv/pyenv master
+if (( UPDATED > 0 )); then
+    maybe_add_to_path "${HOME}/.pyenv/bin"
+    eval "$(pyenv init -)"
+    export PYENV_ROOT="${HOME}/.pyenv"
+fi
+get_or_update "${HOME}"/.pyenv/plugins/pyenv-virtualenv pyenv/pyenv-virtualenv master
+if (( UPDATED > 0 )); then
+    eval "$(pyenv virtualenv-init -)"
+fi
+get_or_update "${HOME}"/.pyenv/plugins/pyenv-update pyenv/pyenv-update master
+pyenv update

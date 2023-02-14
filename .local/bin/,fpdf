@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+#
+# Use fzf to search inside a directory of pdfs.
+# It uses 'pdftotext' to build a cache inside the pdf directory.
+# Then searches those files.
+# Dependencies:
+# - pdftotext (part of poppler)
+
+
+PROGRAM=${0##*/}
+
+function print_help () {
+    cat <<END
+Search for text in a collection of pdfs and open selection.
+
+USAGE:
+    ${PROGRAM} (options) <pdf directory>
+
+The pdf directory can also be set with the shell variable PDF_LIBRARY.
+The function will only show results for files that can be converted to
+text. Image PDFs are mostly ignored. Text copies of the pdf are placed
+in the .cache subdirectory.
+
+OPTIONS:
+    -h
+        Print this help.
+    -p
+        App used to open the files. Defaults to Zathura if it is in PATH.
+    -v
+        Verbose
+END
+}
+
+VERBOSE=:
+type zathura &> /dev/null || APP="echo" && APP="zathura"
+
+while getopts :hp:v VAL; do
+    case $VAL in
+        h) print_help
+           exit 0
+           ;;
+        p) APP="${OPTARG}"
+           ;;
+        v) VERBOSE="echo"
+           ;;
+        :) echo "Argument missing for ${OPTARG}" >&2
+           exit 1
+           ;;
+        *) echo "Unrecognized option ${OPTARG}" >&2
+           exit 1
+           ;;
+      esac
+done
+shift $((OPTIND -1))
+if [[ -n "$1" ]]; then
+    LIBRARY="$1"
+else
+    LIBRARY="${PDF_LIBRARY:-.}"
+fi
+mkdir -p "${LIBRARY}/.cache" || { echo "Unable to create cache directory." >&2; exit 1; }
+cd "${LIBRARY}/.cache" || { echo "Unable navigate into cache directory." >&2; exit 1; }
+
+"${VERBOSE}" "Updating cache"
+for PDF in ../*.pdf; do
+    if [[ -f "${PDF}" ]]; then
+        TXT="${PDF#*/}"
+        TXT="${TXT%.pdf}.txt"
+        if [[ ! -f "${TXT}" ]]; then
+            "${VERBOSE}" "Creating ${TXT}"
+            pdftotext -nodiag "${PDF}" "${TXT}"
+        fi
+    fi
+done
+
+for TXT in *.txt; do
+    [[ "${TXT}" == "*.txt" ]] && break
+    if [[ ! -f "../${TXT%.txt}.pdf" ]]; then
+        rm "${TXT}"
+    fi
+done
+
+for TXT in *.txt; do
+    [[ "${TXT}" == "*.txt" ]] && cd .. && rm -r .cache && { echo "No valid PDFs" >&2; exit 1; }
+done
+
+RG_DEFAULT_COMMAND="rg -i -l --hidden --no-ignore-vcs"
+
+SELECTED=$(
+    FZF_DEFAULT_COMMAND="rg --files" fzf \
+                       -m \
+                       -e \
+                       --ansi \
+                       --phony \
+                       --reverse \
+                       --header "enter: view" \
+                       --bind "change:reload:${RG_DEFAULT_COMMAND} {q} || true" \
+                       --preview "rg -i --pretty --context 2 {q} {}" | cut -d: -f1,2
+)
+
+[[ -n ${SELECTED} ]] && "${APP}" ../"${SELECTED%.txt}.pdf" &

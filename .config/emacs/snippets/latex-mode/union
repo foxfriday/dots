@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: union
+# key: union
+# condition: (and (texmathp) 'auto)
+# --
+\bigcup${1:\limits}_{$2}^{$3}$0

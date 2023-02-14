@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+#
+# Search text and open selected files in default editor.
+
+PROGRAM="${0##*/}"
+function print_help () {
+    echo "Search text files for a string and open selection."
+    echo ""
+    echo "USAGE:"
+    echo "    ${PROGRAM} or ${PROGRAM} <directory>."
+}
+
+if [[ "$1" == "-h" ]]; then
+    print_help
+fi
+
+if [[ -n "$1" ]]; then
+     if [[ -d "$1" ]]; then
+         cd "$1" || { echo "Unable to enter directory" >&2; exit 1; }
+     else
+         echo "$1 is not a directory" >&2
+         exit 1
+     fi
+fi
+
+RG_DEFAULT_COMMAND="rg -i -l --hidden --no-ignore-vcs"
+
+SELECTED=$(
+    FZF_DEFAULT_COMMAND="rg --files" fzf \
+                       -e \
+                       --multi \
+                       --ansi \
+                       --phony \
+                       --reverse \
+                       --header "enter: view, C-a: select all" \
+                       --bind "ctrl-a:select-all" \
+                       --bind "change:reload:${RG_DEFAULT_COMMAND} {q} || true" \
+                       --preview "rg -i --pretty --context 2 {q} {}" | cut -d: -f1,2
+)
+
+# The unquoted expansion on SELECTED is needed, but that means it will fail on
+# files that have a space on their name
+[[ -n "${SELECTED}" ]] && { "${EDITOR:-vim}" ${SELECTED[*]}; } && exit 0

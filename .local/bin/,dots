@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#
+# Version control configuration files
+
+/usr/bin/git --git-dir="${HOME}/.dots.git/" --work-tree="${HOME}" "$@"

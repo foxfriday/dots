@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: vectorColumn
+# key: vecc
+# condition: (and (texmathp) 'auto)
+# --
+\begin{${1::$$(yas-choose-value '("pmatrix" "vmatrix" "Vmatrix"))}}
+${2:a}_{1} \\\\ $2_{2} \\\\ \vdots \\\\ $2_{n}
+\end{$1} $0

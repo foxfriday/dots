@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: matrix
+# key: mat
+# condition: (and (texmathp) 'auto)
+# --
+\begin{${1::$$(yas-choose-value '("pmatrix" "vmatrix" "Vmatrix"))}}
+$2_{1,1} & $2_{1,2} & \cdots & $2_{1,n} \\\\
+$2_{2,1} & $2_{2,2} & \cdots & $2_{2,n} \\\\
+\vdots  & \vdots  & \ddots & \vdots  \\\\
+$2_{m,1} & $2_{m,2} & \cdots & $2_{m,n}
+\end{$1} $0

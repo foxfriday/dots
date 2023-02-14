@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+#
+# Make a quick commit into GIT WIP branch.
+
+BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+if [ "${BRANCH}" != "wip" ]; then
+  echo "In ${BRANCH}. Move to 'wip' branch... commit aborted." >&2
+  exit 1;
+fi
+git add . && git commit -m $(date +%Y-%m-%dT%H:%M%z)

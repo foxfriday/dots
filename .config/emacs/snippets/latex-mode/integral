@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: integral
+# key: int
+# condition: (and (texmathp) 'auto)
+# --
+\int\limits_{${1:0}}^{${2:\infty}} $3,\mathrm{d}$4 $0

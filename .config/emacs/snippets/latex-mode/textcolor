@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: textColor
+# key: tcol
+# --
+\textcolor{${1::$$(yas-choose-value '("red" "blue" "green"))}}{$0}

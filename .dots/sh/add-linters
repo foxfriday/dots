@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+#
+# Install code linters and lsp
+
+command -v pipx > /dev/null ||
+    { echo "pipx must be installed and added to path" >&2; exit 1; }
+source ./repo-functions.sh
+
+if command -v ruff /dev/null; then
+    pipx upgrade ruff
+else
+    pipx install ruff
+fi
+
+if command -v pylsp /dev/null; then
+    pipx upgrade python-lsp-server
+else
+    pipx install "python-lsp-server[all]";
+    pipx inject python-lsp-server python-lsp-black;
+    pipx inject python-lsp-server pyls-isort;
+    pipx inject python-lsp-server pylsp-mypy;
+fi
+
+mkdir -p "${HOME}/.dots/bin"
+
+system_info
+
+get_github_asset valentjn/ltex-ls "${SYS}"
+if [[ -n "${RET}" ]]; then
+    echo "Expanding file"
+    DEST="${HOME}"/Repos/system/
+    RBIN=$(tar xzvf "${RET}" -C "${DEST}" | grep "ltex-ls$")
+    FBIN="${DEST}${RBIN#./}"
+    ln -sn "${FBIN}" "${HOME}"/.dots/bin/ltex-ls
+    ln -sn "${FBIN%-ls}-cli" "${HOME}"/.dots/bin/ltex-cli
+    rm "${RET}"
+fi
+
+get_github_asset koalaman/shellcheck "${SYS}.${ARCH}"
+if [[ -n "${RET}" ]]; then
+    echo "Expanding file"
+    DEST="${HOME}"/Repos/system/
+    RBIN=$(tar xvf "${RET}" -C "${DEST}" | grep "shellcheck$")
+    FBIN="${DEST}${RBIN#./}"
+    mv "${FBIN}" "${HOME}"/.dots/bin/
+    rm "${RET}"
+fi

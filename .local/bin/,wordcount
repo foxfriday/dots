@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+#
+# Count words in a file
+
+function print_help ()
+{
+    echo "Word count in a file."
+    echo ""
+    echo "USAGE:"
+    echo "    ${0##*/} <file> <top n>"
+}
+
+
+tr '[:upper:]' '[:lower:]' < "${1}" |
+  grep -oE "[a-z\']{2,}" |
+  sort |
+  grep -Fvwf "${HOME}/.config/dict/stop-words.txt" |
+  uniq -c |
+  sort -nr |
+  head "-${2:-10}"

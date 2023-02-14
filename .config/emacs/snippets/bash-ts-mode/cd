@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: cd
+# key: cd
+# --
+cd $1 || { echo \"$2\" >&2; exit 1; }
+$0

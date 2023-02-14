@@ -1,0 +1,13 @@
+# Theme
+include /usr/share/doc/newsboat/contrib/colorschemes/kinda-maia
+
+reload-threads 10
+browser "firefox --new-tab %u"
+text-width 90
+
+# Podboat
+macro E set browser "echo %u >> ~/.local/share/newsboat/queue"; open-in-browser; set browser elinks
+download-path "~/Media/pods/%N"
+download-filename-format "%F-%t.%e"
+player "mpv"
+podlist-format "%4i [%5p %%] %-6S %-20u → %b"

@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: limit
+# key: lim
+# condition: (and (texmathp) 'auto)
+# --
+\lim\limits_{${1:x \to \infty}} $0

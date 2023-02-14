@@ -1,0 +1,75 @@
+* Dot Files
+
+| Core                        |                                         |
+|-----------------------------+-----------------------------------------|
+| curl                        |                                         |
+| git                         |                                         |
+| pass                        | password manager                        |
+| ~cmake~                       |                                         |
+| ~dict-{wn,vera,gcide,foldoc}~ | dictionaries                            |
+| ~dictd~                       | dictionary server (~systemd~)             |
+| ~dict~                        | dictionary client                       |
+| ~inkscape~                    |                                         |
+| ~ispell~                      | spelling                                |
+| ~mpv~                         |                                         |
+| ~nmap~                        | network exploration                     |
+| ~rclone~                      |                                         |
+| ~ripgrep~                     | ~rg~ searcher                             |
+| ~webp~                        | convert ~webp~ images                     |
+| ~zathura-pdf-poppler~         |                                         |
+| ~zathura~                     |                                         |
+| ~zsh-syntax-highlighting~     |                                         |
+| ~zsh~                         |                                         |
+|-----------------------------+-----------------------------------------|
+| TeX                         |                                         |
+|-----------------------------+-----------------------------------------|
+| ~bibtool~                     | ~Bibtex~ command line                     |
+| ~texlive-lang-english~        |                                         |
+| ~texlive-science~             | Science packages                        |
+| ~texlive~                     | TeX packages                            |
+| ~xetex~                       | TeX engine with ~unicode~                 |
+|-----------------------------+-----------------------------------------|
+| Python tools (with ~pipx~)    |                                         |
+|-----------------------------+-----------------------------------------|
+| ~jupyter~                     |                                         |
+| ~khard~                       | Contacts manager                        |
+| ~vdirsyncer~                  | Sync contacts and calendars             |
+| ~youtube-dl~                  |                                         |
+| ~img2pdf~                     |                                         |
+|-----------------------------+-----------------------------------------|
+| Sway WM                     |                                         |
+|-----------------------------+-----------------------------------------|
+| ~blueman~                     | manage ~bluetooth~                        |
+| ~brightnessctl~               | controls laptop brightness              |
+| ~foot~                        | terminal                                |
+| ~grimshot~                    | screenshot                              |
+| ~kanshi~                      | auto display setup                      |
+| ~libsixel-bin~                | display images in terminal (needs foot) |
+| ~mako-notifier~               | notify-send                             |
+| ~pavucontrol~                 | volume control                          |
+| ~swayidle~                    | manage idle behavior                    |
+| ~swaylock~                    | locks computer on idle                  |
+| ~sway~                        | windows management                      |
+| ~wdisplays~                   | manage display configuration            |
+| ~wl-clipboard~                | command line interface to clipboard     |
+| ~wob~                         | bar (e.g.) volume indicator             |
+| ~wofi~                        | picker                                  |
+|-----------------------------+-----------------------------------------|
+| Repos                       |                                         |
+|-----------------------------+-----------------------------------------|
+| ledger                      |                                         |
+| ~bat~                         | cat replacement ([[https://github.com/sharkdp/bat][repository]])            |
+| ~fd~                          | find replacement ([[https://github.com/sharkdp/fd][repository]])           |
+| ~fzf~                         | see [[https://github.com/junegunn/fzf][repository]]                          |
+| ~pandoc~                      | [[https://github.com/jgm/pandoc/blob/master/INSTALL.md][instructions]] (repository)               |
+| ~pyenv~                       |                                         |
+|-----------------------------+-----------------------------------------|
+| Linters                     |                                         |
+|-----------------------------+-----------------------------------------|
+| ~shellcheck~                  |                                         |
+| ~ltex-ls~                     |                                         |
+| ~ruff~                        |                                         |
+| ~python-lsp-server~           |                                         |
+| ~python-lsp-black~            |                                         |
+| ~pyls-isort~                  |                                         |
+| ~pylsp-mypy~                  |                                         |

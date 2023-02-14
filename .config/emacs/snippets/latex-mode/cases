@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: cases
+# key: case
+# --
+\begin{dcases*}
+  $1  & $2 \\
+  $3  & $4
+\end{dcases*}
+$0

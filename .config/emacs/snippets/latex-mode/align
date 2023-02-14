@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: align
+# key: al
+# --
+\begin{${1::$$(yas-choose-value '("align*" "align"))}}
+  $0
+\end{$1}

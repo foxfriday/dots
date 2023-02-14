@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: sh
+# key: cds
+# --
+#+begin_src sh
+$0
+#+end_src

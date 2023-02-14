@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: emacs-lisp
+# key: cde
+# --
+#+begin_src emacs-lisp :tangle yes
+$0
+#+end_src

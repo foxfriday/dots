@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Install jetbrain mono font
+# See: https://github.com/JetBrains/JetBrainsMono
+
+# set -x
+
+### Check requirements
+command -t jq > /dev/null || { echo "jq requirement missing." >&2; exit 1; }
+
+### Setup
+RELEASE_INFO="https://api.github.com/repos/JetBrains/JetBrainsMono/releases/latest"
+FONTS="${HOME}/.local/share/fonts"
+
+
+### Get latest release info
+TEMP_INFO=$(mktemp)
+curl -sL "${RELEASE_INFO}" -o "${TEMP_INFO}" ||
+    { rm "${TEMP_INFO}"; echo "Error acquiring repository info" >&2; exit 1; }
+URL=$(jq --raw-output '.assets[0].browser_download_url' "${TEMP_INFO}")
+rm "${TEMP_INFO}"
+
+### Download assets
+TEMP_ASSET=$(mktemp)
+curl -sL "${URL}" -o "${TEMP_ASSET}" ||
+    { rm "${TEMP_ASSET}"; echo "Error acquiring assets from ${URL}" >&2; exit 1; }
+mkdir -p FONTS
+unzip -o "${TEMP_ASSET}" -d "${FONTS}" ||
+    { rm "${TEMP_ASSET}"; echo "Error acquiring extracting assets" >&2; exit 1; }
+rm "${TEMP_ASSET}"
+
+### Build cache
+fc-cache -f

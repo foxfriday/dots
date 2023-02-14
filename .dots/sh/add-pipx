@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+#
+# Install and set pyenv and pipx, optionally install pipx packages
+
+
+PY="${1:-3.10.9}"
+
+command -v pyenv > /dev/null ||
+    { echo "pyenv must be installed and added to path" >&2; exit 1; }
+
+# do we need to install?
+pyenv versions | grep "${PY}" ||
+    pyenv install "${PY}"
+
+# are we changing path?
+CHECK=$(pyenv global)
+if [[ "${CHECK}" != "${PY}" ]] && command -v pipx > /dev/null; then
+    read -p "Operation will remove all pipx packages. Continue (y/n)?" -r CHOICE
+    case $CHOICE in
+        y|Y ) pipx uninstall-all && pip uninstall pipx ;;
+        * ) echo "Aborting" >&2; exit 1; ;;
+    esac
+fi
+
+# don't install on system
+pyenv global "${PY}"
+[[ "${CHECK}" != "${PY}" ]] && { echo "Unable to set global pyenv" >&2; exit 1; }
+
+# install or update
+pip install --upgrade pipx
+NEWPY=$(pyenv which python)
+export PIPX_DEFAULT_PYTHON="${NEWPY}"
+
+if [[ -w "${HOME}"/.config/zsh/.zshrc ]]; then
+    sed -i "s|PIPX_DEFAULT_PYTHON=.*|PIPX_DEFAULT_PYTHON=${PIPX_DEFAULT_PYTHON}|" "${HOME}"/.config/zsh/.zshrc
+fi
+
+if [[ -w "${HOME}"/.bashrc ]]; then
+    sed -i "s|PIPX_DEFAULT_PYTHON=.*|PIPX_DEFAULT_PYTHON=${PIPX_DEFAULT_PYTHON}|" "${HOME}"/.bashrc
+fi
+
+pipx ensurepath

@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+#
+# Install fd, bat, and pandoc from their github repos
+
+# set -x
+
+declare -a PKGS
+declare -a TARGETS
+TARGETS+=(jgm/pandoc
+          rclone/rclone
+          sharkdp/bat
+          sharkdp/fd)
+
+source ./repo-functions.sh
+
+### Setup
+system_info
+
+for T in "${TARGETS[@]}"; do
+    get_github_asset "${T}" "${PROC}.deb"
+    [[ -n "${RET}" ]] && PKGS+=("${RET}")
+done
+
+for PKG in "${PKGS[@]}"; do
+    read -p "Install ${PKG} (y/n)?" -r CHOICE
+    case $CHOICE in
+        y|Y )
+            sudo dpkg -i "${PKG}"
+            rm "${PKG}"
+            ;;
+        * )
+            echo "${PKG} skipped"
+            ;;
+    esac
+done
+
+command -v pipx > /dev/null ||
+    { echo "pipx must be installed and added to path" >&2; exit 1; }
+
+command -v jupyter > /dev/null && pipx upgrade jupyter || pipx install --include-deps jupyter
+command -v img2pdf > /dev/null && pipx upgrade img2pdf || pipx install img2pdf
+command -v youtube-dl > /dev/null && pipx upgrade youtube-dl || pipx install youtube-dl

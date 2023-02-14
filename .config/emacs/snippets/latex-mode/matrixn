@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: matrixn
+# key: matn
+# condition: (and (texmathp) 'auto)
+# --
+\begin{${1::$$(yas-choose-value '("pmatrix" "vmatrix" "Vmatrix"))}}
+$2 & $3 & \cdots & $4 \\\\
+$5 & $6 & \cdots & $7 \\\\
+\vdots  & \vdots  & \ddots & \vdots  \\\\
+$8 & $9 & \cdots & $10
+\end{$1} $0

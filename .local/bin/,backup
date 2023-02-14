@@ -1,0 +1,153 @@
+#!/usr/bin/env bash
+#
+# The script creates a back up of the home directory with rsync
+# to the provided destination. Optionally, it can encrypt the
+# pass store and make a physical back up of its contents.
+# Dependencies:
+# - rsync
+
+
+PROGRAM=${0##*/}
+function print_help () {
+    cat <<-END
+Backup home directory to given destinattion.
+
+USAGE:
+    ${PROGRAM} (options) <destination>
+
+OPTIONS:
+    -d
+        Make a dry run.
+    -h
+        Print this help.
+    -p
+        Make hard copy of pass store by sending unencrypted file
+        to default printer. Unsing -p sets -u to true.
+    -u
+        Unencrypt pass store and make backup.
+    -U
+        Only backup pass store and optionaly make hard copy.
+    -v
+        Verbose.
+END
+}
+
+
+HOST=$(hostname -s)
+PDIR="${PASSWORD_STORE_DIR:-${HOME}/.password-store}"
+DT=$(date +%Y-%m-%dT%H-%M-%S)
+declare -a FLAGS
+FLAGS+=(--archive)
+VERBOSE=:
+while getopts ":dhpuUv" opt; do
+    case $opt in
+        d) DRY=1
+           FLAGS+=(--dry-run --itemize-changes)
+           ;;
+        h) print_help
+           exit 0
+           ;;
+        p) PRINT=1
+           UNENCRYPT=1
+           ;;
+        u) UNENCRYPT=1
+           ;;
+        U) UNENCRYPT=1
+           NORSYNC=1
+           ;;
+        v) VERBOSE="echo"
+           FLAGS+=(--verbose)
+           ;;
+        :) echo "No required argument supplied for $OPTARG" >&2
+           exit 1
+           ;;
+        *) echo "Unrecognized option $OPTARG" >&2
+           exit 1
+           ;;
+    esac
+done
+
+shift $((OPTIND -1))
+if [[ -d "$1" ]]; then
+    BASE="$1"
+    DEST="$1/${HOST}"
+    [[ -v DRY ]] || mkdir -p "${DEST}"
+else
+    echo "Destination is missing or is not a directory." >&2
+    exit 1
+fi
+
+if [[ -v UNENCRYPT ]]; then
+    [[ -v DRY ]] || mkdir -p "${DEST}/pass"
+    PDEST="${DEST}/pass/${DT}.txt"
+    ${VERBOSE} "Pass destination: ${PDEST}"
+    for f in "${PDIR}"/*/*.gpg; do
+        [[ -f "${f}" ]] || continue
+        ${VERBOSE} "decryption: ${f} to ${PDEST}"
+        [[ -v DRY ]] && continue
+        echo "${f}" >> "${PDEST}"
+        echo "${f}"; gpg --decrypt "${f}" >> "${PDEST}"
+        echo "" >> "${PDEST}"
+    done
+
+    if [[ -v PRINT ]] && [[ ! -v DRY ]]; then
+        for ((i=0; i<4; i++)); do
+            read -p "Really print store (y/n)?" -r CHOICE
+            case $CHOICE in
+                y|Y ) lp -o sides=two-sided-long-edge "${PDEST}"
+                      break
+                      ;;
+                n|N ) break
+                      ;;
+                * ) echo "Invalid choice"
+                    ;;
+            esac
+        done
+    fi
+fi
+
+[[ -v NORSYNC ]] && exit 0
+
+### RSync
+FLAGS+=(--delete
+        --backup
+        --backup-dir=../"${DT}"
+        --exclude=.cache/
+        --exclude=.cargo/
+        --exclude=.git/
+        --exclude=.gnupg/
+        --exclude=.dropbox/
+        --exclude=.dropbox-dist/
+        --exclude=.fzf/
+        --exclude=.ipython/
+        --exclude=.jupyter/
+        --exclude=.local/pipx/
+        --exclude=.matplotlib/
+        --exclude=.mozilla/
+        --exclude=.npm/
+        --exclude=.pki/
+        --exclude=.pyenv/
+        --exclude=.rustup/
+        --exclude=snap/
+        --exclude=.texlive2021/
+        --exclude=.thunderbird/)
+
+if [[ "${OSTYPE}" == "darwin" ]]; then
+    FLAGS+=(--exclude=.Trash/
+            --exclude=Library/
+            --exclude=.DS_Store
+            --exclude='Pictures/Photos Library.photoslibrary/'
+            --exclude=Music/Music/
+            --exclude=Movies/TV/)
+fi
+
+# prevent recursion
+CONTAINED=$(find "${HOME}" -type d -path "${HOME}/${BASE}")
+if [[ -n "${CONTAINED}" ]]; then
+    ${VERBOSE} "Destination inside source. Excluding..."
+    ADDITIONAL=$(realpath --relative-to="${HOME}" "${BASE}")
+    FLAGS+=("--exclude=${ADDITIONAL}/")
+fi
+
+${VERBOSE} "rsync ${FLAGS[*]} ${HOME} ${DEST}/now"
+rsync ${FLAGS[*]} "${HOME}" "${DEST}/now"

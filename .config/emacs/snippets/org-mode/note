@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: note
+# key: ont
+# --
+[`(format-time-string "%Y-%m-%d %H:%M")`]: $0

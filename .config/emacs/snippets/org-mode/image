@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: image
+# key: img
+# --
+${3:$$(if (and yas-moving-away-p yas-modified-p) (concat "#+CAPTION:" yas-text))}
+#+NAME: fig:${2:$$(file-name-nondirectory (yas-field-value 1))}
+[[file:${1:$$(yas-choose-image)}]]
+$0

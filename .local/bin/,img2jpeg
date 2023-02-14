@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+#
+# Convert images from different formats into jpeg.
+# The scripts depends on the following apps:
+# - heif-convert
+# - dwebp
+# - convert (from imagemagic)
+
+function print_help ()
+{
+    echo "Convert images to jpeg. Accepts heic, webp, png, and pnm."
+    echo ""
+    echo "USAGE:"
+    echo "    ${0##*/} <file> ... <file>"
+}
+
+function transform ()
+{
+  if [ -f "$1" ] ; then
+    case "$1" in
+      *.heic)  heif-convert "$1" "${1%.heic}.jpeg"  ;;
+      *.HEIC)  heif-convert "$1" "${1%.HEIC}.jpeg"  ;;
+      *.webp)  dwebp "$1" -o "${1%.webp}.jpeg"  ;;
+      *.WEBP)  dwebp "$1" -o "${1%.WEBP}.jpeg"  ;;
+      *.png)   convert "$1" "${1%.png}.jpeg"  ;;
+      *.PNG)   convert "$1" "${1%.PNG}.jpeg"  ;;
+      *.pnm)   convert "$1" "${1%.pnm}.jpeg"  ;;
+      *.PNM)   convert "$1" "${1%.PNM}.jpeg"  ;;
+      *)       echo "'$1' cannot convert to jpeg" >&2  ;;
+    esac
+  else
+      echo "'$1' is not a valid file" >&2
+      exit 1
+  fi
+}
+
+if (( $# < 1 )); then
+    print_help >&2
+    exit 1
+fi
+
+if [[ "$1" == "-h" ]]; then
+    print_help
+    exit 0
+fi
+
+for arg in "$@"; do
+    echo transform "${arg}"
+done

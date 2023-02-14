@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+#
+# Export a sqlite database into csv
+
+function print_help () {
+    cat <<-END
+Export an sqlite database into csv. Without a query, export
+entire database, each table into an separate file. If a
+query is provided, the optional <output> is the name of the
+resulting file.
+
+USAGE:
+    ${0##/*} database <query> <output>
+END
+}
+
+function full_export () {
+    # obtains all data tables from database
+    TS=$(sqlite3 "${1}" SELECT tbl_name FROM sqlite_master WHERE type='table' and tbl_name not like 'sqlite_%';)
+
+    # exports each table to csv
+    for T in ${TS}; do
+        sqlite3 "$1" <<END
+.headers on
+.mode csv
+.output $T.csv
+select * from $T;
+END
+    done
+}
+
+if (( $# < 1 )); then
+    echo "No database specified." >&2
+    exit 1
+fi
+
+if [[ "$1" == "-h" ]]; then
+    print_help
+    exit 0
+fi
+
+if (( $# == 1 )); then
+    full_export "$1"
+    exit 0
+fi
+
+OUTPUT="{$3:-$1}"
+sqlite3 "$1" <<END
+.headers on
+.mode csv
+.output ${OUTPUT}.csv
+$2;
+END

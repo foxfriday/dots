@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+#
+# Install mail and calendar applications
+# - isync (mbsync)
+# - mu (mu4e)
+# - khard
+# - vdirsyncer
+#
+# see:
+# https://sourceforge.net/p/isync/isync/ci/master/tree/
+# https://github.com/djcb/mu
+
+command -v pipx > /dev/null ||
+    { echo "pipx must be installed and added to path" >&2; exit 1; }
+
+source ./repo-functions.sh
+
+command -v khard && pipx upgrade khard || pipx install khard
+command -v vdirsyncer && pipx upgrage vdirsyncer || pipx install vdirsyncer
+
+PSYS="${HOME}/Repos/system"
+mkdir -p "${PSYS}"
+mkdir -p "${HOME}/.dots/bin"
+mkdir -p "${HOME}/.dots/man/man5"
+mkdir -p "${HOME}/.dots/man/man7"
+mkdir -p "${HOME}/.config/emacs/pkgs"
+
+# 1.4 is too strict and fails with outlook, so use master
+get_or_update "${PSYS}/isync" https://git.code.sf.net/p/isync/isync master
+if (( UPDATED > 0 )); then
+    echo "Building isync (mbsync)"
+    cd "${PSYS}/isync" || { echo "Unable to enter local repository" >&2; exit 1; }
+    ./autogen.sh
+    mkdir build
+    cd build || { echo "Unable to enter build directory" >&2; exit 1; }
+    ../configure
+    make
+
+    if [[ -e ./src/mbsync ]]; then
+        cp ./src/mbsync "${HOME}/.dots/bin/mbsync"
+    else
+        echo "Unable to find mbsync executable" >&2
+        exit 1
+    fi
+    make clean
+    cd "${PSYS}/isync" || { echo "Unable to re-enter local repository" >&2; exit 1; }
+    rm -r "${PSYS}/isync/build"
+    # manual
+    if [[ -e ./src/mbsync.1 ]]; then
+        cp ./src/mbsync.1 "${HOME}/.dots/man/man1/mbsync.1"
+    else
+        echo "Unable to add man page for mbsync" >&2
+        exit 1
+    fi
+fi
+
+get_or_update "${PSYS}"/mu djcb/mu
+if (( UPDATED > 0 )); then
+    echo "updated"
+    cd "${PSYS}"/mu || { echo "Unable to enter local repository" >&2; exit 1; }
+    ./autogen.sh
+    make
+
+    if [[ -e ./build/mu/mu ]]; then
+        cp ./build/mu/mu "${HOME}/.dots/bin/mu"
+    else
+        echo "Unable to find mu executable" >&2
+        exit 1
+    fi
+
+    MU4EDIR="${HOME}/.config/emacs/pkgs/mu4e"
+    if [[ -d ./build/mu4e ]]; then
+        cp -r ./build/mu4e "${MU4EDIR}"
+    else
+        echo "Unable to find mu4e" >&2
+        exit 1
+    fi
+
+    if [[ -d ./man ]]; then
+        cp ./man/mu*.1 "${HOME}/.dots/man/man1/"
+        cp ./man/mu*.5 "${HOME}/.dots/man/man5/"
+        cp ./man/mu*.7 "${HOME}/.dots/man/man7/"
+    else
+        echo "Unable to find man pages for mu" >&2
+        exit 1
+    fi
+    rm -r build
+
+    if (( UPDATED == 1 )); then
+        echo "mu most be initialized before first indexing"
+        echo ""
+        echo "run:"
+        echo "mbsync -a"
+        echo "mu init -m ${HOME}/Mail --my-address <email> ... --my-address <email>"
+        echo "mu index"
+    fi
+fi

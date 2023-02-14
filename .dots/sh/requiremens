@@ -1,0 +1,173 @@
+#!/usr/bin/env bash
+#
+# Install requirements for various packages along with some cli utilities
+
+function print_help {
+    cat <<-END
+Use apt-get to install a list of requirements.
+
+USAGE:
+    ${0##*/} (options)
+
+OPTIONS:
+    -c
+        Command line tools.
+    -e
+        Emacs requirements.
+    -x
+        Extend emacs with a dictionary server, spelling, and bash linter.
+    -l
+        Ledger requirements
+    -h
+        Print this help.
+    -p
+        Python requirements.
+    -r
+        Rust requirements.
+    -s
+        Sway windows manager.
+    -t
+        LaTex.
+END
+}
+
+function apt_install {
+    apt-get install "$@"
+}
+
+declare -a CLI
+CLI+=(cmake
+      curl
+      git
+      nmap
+      pass
+      rclone
+      ripgrep
+      vim
+      webp
+      wireguard
+      zsh
+      zsh-syntax-highlighting)
+
+declare -a PY
+PY+=(build-essential
+     libbz2-dev
+     libreadline-dev
+     libsqlite3-dev
+     libssl-dev
+     libxml2-dev)
+
+declare -a SWAY
+SWAY+=(blueman
+       brightnessctl
+       foot
+       grimshot
+       inkscape
+       kanshi
+       libsixel-bin
+       mako-notifier
+       mpv
+       pavucontrol
+       sway
+       swayidle
+       swaylock
+       wdisplays
+       wl-clipboard
+       wob
+       wofi
+       zathura
+       zathura-pdf-poppler)
+
+declare -a RUST
+RUST+=(libfontconfig1-dev
+       libfreetype6-dev
+       libxcb-xfixes0-dev
+       libxkbcommon-dev
+       pkg-config)
+
+declare -a EMACSCORE
+EMACSCORE+=(autoconf
+            biber
+            checkinstall
+            gcc-12
+            graphviz
+            libgccjit-12-dev
+            libgccjit0
+            libgif-dev
+            libgnutls28-dev
+            libgtk-3-dev
+            libjansson-dev
+            libjansson4
+            libjpeg-dev
+	    libjpeg-progs
+            librsvg2-dev
+            libtiff-dev
+            libtinfo-dev
+            libwebp-dev
+            libxaw7-dev
+            texinfo)
+
+declare -a EMACSEXTRA
+EMACSEXTRA+=(dictd
+             dict
+             dict-{wn,vera,gcide,foldoc}
+             ispell)
+
+declare -a TEX
+TEX+=(bibtool
+      latexmk
+      texlive
+      texlive-lang-english
+      texlive-science
+      texlive-xetex)
+
+declare -a LEDGER
+LEDGER+=(doxygen
+         gettext
+         libboost-date-time-dev
+         libboost-dev
+         libboost-filesystem-dev
+         libboost-iostreams-dev
+         libboost-python-dev
+         libboost-regex-dev
+         libboost-system-dev
+         libboost-test-dev
+         libedit-dev
+         libgmp3-dev
+         libmpfr-dev
+         python3-dev
+         tzdata)
+
+declare -a PKGS
+
+while getopts ':hcpsrextl' OPT; do
+    case $OPT in
+        h) print_help
+           exit 0
+           ;;
+        c) PKGS+=("${CLI[*]}") ;;
+        p) PKGS+=("${PY[*]}") ;;
+        s) PKGS+=("${SWAY[*]}") ;;
+        r) PKGS+=("${RUST[*]}") ;;
+        e) PKGS+=("${EMACSCORE[*]}") ;;
+        x) PKGS+=("${EMACSEXTRA[*]}")
+           DICT=1
+           ;;
+        t) PKGS+=("${TEX[*]}") ;;
+        l) PKGS+=("${LEDGER[*]}") ;;
+        *) echo "Unknown option ${OPTARGS}" >&2
+           exit 1
+           ;;
+    esac
+done
+
+((${#PKGS} < 1)) && { echo "Nothing to install. Missing options?" >&2; exit 1;}
+
+if [[ "$EUID" -ne 0 ]]; then
+  echo "Setup must be run as root" >&2
+  exit 1
+fi
+
+apt update
+apt_install "${PKGS[*]}"
+[[ -v DICT ]] && systemctl enable dictd

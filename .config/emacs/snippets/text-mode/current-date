@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: current-date
+# key: dt
+# contributor : Kristof Molnar-Tatai <kristof.mlnr@gmail.com>
+# --
+`(format-time-string "%Y-%m-%d")`$0

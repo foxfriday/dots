@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: intersect
+# key: intersect
+# condition: (and (texmathp) 'auto)
+# --
+\bigcap${1:\limits}_{$2}^{$3}$0
