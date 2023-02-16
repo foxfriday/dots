@@ -26,36 +26,43 @@
   "Do the right thing when pressing <RET> in terminal.")
 
 ;; Defaults paths
+(defvar my-quick-notes (eval-when-compile
+                         (car (string-split
+                               (shell-command-to-string "find ~ -type d -name quick-notes")
+                               "\n"
+                               t)))
+  "File with a list of paths to loose org notes.")
+
 (defvar my-agenda (eval-when-compile
                     (car (string-split
-                          (shell-command-to-string "find ~ -type d -name agenda")
+                          (shell-command-to-string "find ~ -type f -name agenda-files")
                           "\n"
                           t)))
-  "Default location of agenda files.")
+  "File with a list of paths to org agenda files.")
 
-(defvar my-notes "~/Repos/notes/cs/"
-  "Default location of notes files.")
+(defvar my-work-notes "~/Repos/notes/cs/"
+  "Directory with quick notes files.")
 
 (defvar my-diary (eval-when-compile
                     (car (string-split
                           (shell-command-to-string "find ~ -type f -name emacs.diary")
                           "\n"
                           t)))
-  "Default diary location.")
+  "Calendar diary location.")
 
 (defvar diary-org (eval-when-compile
                     (car (string-split
                           (shell-command-to-string "find ~ -type f -name 'diary.org*'")
                           "\n"
                           t)))
-  "Default org diary location.")
+  "Diary location.")
 
 (defvar my-bibliography (eval-when-compile
                           (string-split
                            (shell-command-to-string "find ~ -type f -name '*.bib'")
                            "\n"
                            t))
-  "Default location of bibliography files.")
+  "Location of default bibliography files.")
 
 ;; Check requirements
 (eval-when-compile

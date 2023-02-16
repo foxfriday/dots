@@ -92,10 +92,10 @@
   (kbd "K <left>") (lambda () (interactive) (extra-kill-other-buffer "h"))
   (kbd "K <right>") (lambda () (interactive) (extra-kill-other-buffer "l"))
   ;; search/switch
-  "sa" (lambda () (interactive) (extra-open-in my-agenda "\\.org$\\|\\.diary$\\|\\.gpg$"))
   "sd" 'extra-search-dir
   "sD" 'extra-search-to-dired
-  "sn" (lambda () (interactive) (extra-open-in my-notes "\\.org$\\|\\.tex$\\|\\.gpg$"))
+  "sn" (lambda () (interactive) (extra-open-in my-work-notes "\\.org$\\|\\.tex$\\|\\.gpg$"))
+  "sq" (lambda () (interactive) (extra-open-in my-notes "\\.org$\\|\\.tex$\\|\\.gpg$"))
   "sw" 'webjump
   "sW" 'dictionary-search
   "/"  'occur

@@ -22,8 +22,8 @@
 ;;; Agenda
 (evil-set-initial-state 'org-agenda-mode 'normal)
 
-(if my-agenda (setq org-directory my-agenda
-                    org-agenda-files my-agenda))
+(if my-agenda (setq org-agenda-files my-agenda))
+(if my-quick-notes (setq org-directory my-quick-notes))
 
 (setq org-agenda-show-future-repeats 'next
       org-agenda-compact-blocks t

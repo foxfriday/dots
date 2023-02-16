@@ -1,5 +1,19 @@
 * Dot Files
 
+To install:
+
+#+begin_src sh
+curl -L https://raw.githubusercontent.com/foxfriday/dots/main/.dots/sh/setup > setup
+chmod +x setup
+# default brach is main
+./setup <branch>
+source .bashrc
+cd .dots
+make emacsd
+#+end_src
+
+** Application List
+
 | Core                        |                                         |
 |-----------------------------+-----------------------------------------|
 | curl                        |                                         |
