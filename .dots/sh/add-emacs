@@ -1,6 +1,38 @@
 #!/usr/bin/env bash
 #
+# called add-emacs -m uses the github mirror.
 
+function print_help {
+    cat <<-END
+Clone and install Emacs and its dependencies.
+
+The build includes tree-sitter, so the branch must be emacs-29 or greater.
+Bofore building, an editor will open so you can inspect the chosen
+options and available components.
+
+USAGE:
+    ${0##*/} (options)
+
+OPTIONS:
+    -h
+        Print this help.
+    -m
+        Use github Emacs mirror
+END
+}
+
+EMACSREMOTE=https://git.savannah.gnu.org/git/emacs.git
+while getopts ':hm' OPT; do
+    case $OPT in
+        h) print_help
+           exit 0
+           ;;
+        m) EMACSREMOTE=emacs-mirror/emacs  ;;
+        *) echo "Unknown option ${OPTARGS}" >&2
+           exit 1
+           ;;
+    esac
+done
 source ./repo-functions.sh
 
 command -v checkinstall > /dev/null ||
@@ -35,30 +67,30 @@ mkdir -p "${DEST}"
 
 get_or_update "${DEST}"/tree-sitter tree-sitter/tree-sitter master
 if (( UPDATED > 0 )); then
-    cd "${DEST}/tree-sitter" || { echo "unable to enter local repository" >&2; exit 1; }
+    cde "${DEST}/tree-sitter"
     VERSION=$(grep -E -o '^VERSION ?:= ?[0-9\.]+' Makefile | grep -E -o '[0-9\.]+')
     [[ -z "${VERSION}" ]] && { echo "Unable to determine tree-sitter version" >&2; exit 1; }
     make
     read -p "Install tree-sitter ${VERSION}? y/n" -r CHOICE
     case $CHOICE in
         y|Y ) echo "Installing with checkinstall..." ;;
-        * ) echo "Aborting" >&2; exit 1; ;;
+        * ) echo "Aborting installation." >&2; exit 1; ;;
     esac
     sudo checkinstall --pkgname tree-sitter --pkgversion "${VERSION}" --provides tree-sitter "${CHKINS[@]}"
     TSPKG=$(find . -type f -name "tree-sitter_${VERSION}*.deb")
     [[ -z "${TSPKG}" ]] && { echo "Checkinstall failed..." >&2; exit 1; }
     sudo ldconfig
-    make clean
     sudo rm "${TSPKG}"
+    make clean
 fi
 
 
-get_or_update "${DEST}"/emacs https://git.savannah.gnu.org/git/emacs.git
+get_or_update "${DEST}"/emacs "${EMACSREMOTE}"
 if (( UPDATED > 0 )); then
-    cd "${DEST}/emacs" || { echo "unable to enter local repository" >&2; exit 1; }
+    cde "${DEST}/emacs"
     ./autogen.sh
     mkdir build
-    cd ./build || { echo "unable to enter build directory" >&2; exit 1; }
+    cde ./build
 
     DT=$(date "+%Y-%m-%dT%H:%M:%S")
     LOG="config_${DT}.log"
@@ -67,7 +99,7 @@ if (( UPDATED > 0 )); then
     read -p "Compile? y/n" -r CHOICE
     case $CHOICE in
         y|Y ) echo "Installing with checkinstall..." ;;
-        * ) echo "Aborting" >&2; exit 1; ;;
+        * ) echo "Aborting compilation." >&2; exit 1; ;;
     esac
     CC="${COMPILER}" make
     VERSION=$(grep -E -o "^PACKAGE_VERSION ?= ?'?[0-9\.]+'?" ../configure | grep -E -o '[0-9\.]+')
@@ -75,13 +107,13 @@ if (( UPDATED > 0 )); then
     read -p "Install Emacs ${VERSION}? y/n" -r CHOICE
     case $CHOICE in
         y|Y ) echo "Installing with checkinstall..." ;;
-        * ) echo "Aborting" >&2; exit 1; ;;
+        * ) echo "Aborting installation." >&2; exit 1; ;;
     esac
     sudo checkinstall --pkgname "${BRANCH}" --pkgversion "${VERSION}"  "${CHKINS[@]}"
     EPKG=$(find . -type f -name "emacs_${VERSION}*.deb")
     if [[ -z "${EPKG}" ]]; then
         make clean
-    	cd "${DEST}/emacs" || { echo "unable to re-enter local repository" >&2; exit 1; }
+    	cde "${DEST}/emacs"
     	sudo rm -r "${DEST}/emacs/build"
     else
 	echo "Checkinstall failed..." >&2
@@ -90,7 +122,7 @@ if (( UPDATED > 0 )); then
     fi
 fi
 
-get_or_update "${DEST}"/tree-sitter-module casouri/tree-sitter-module
+get_or_update "${DEST}"/tree-sitter-module casouri/tree-sitter-module master
 if (( UPDATED > 0 )); then
     echo "Tree Sitter modules was updated!"
     echo "modules must be build manually after inspecting scripts"

@@ -30,13 +30,14 @@ pyenv global "${PY}"
 pip install --upgrade pipx
 NEWPY=$(pyenv which python)
 export PIPX_DEFAULT_PYTHON="${NEWPY}"
+RELPY=$(realpath --relative-to "${HOME}" "${NEWPY}")
 
 if [[ -w "${HOME}"/.config/zsh/.zshrc ]]; then
-    sed -i "s|PIPX_DEFAULT_PYTHON=.*|PIPX_DEFAULT_PYTHON=${PIPX_DEFAULT_PYTHON}|" "${HOME}"/.config/zsh/.zshrc
+    sed -i "s|PIPX_DEFAULT_PYTHON=.*|PIPX_DEFAULT_PYTHON=\$HOME/${RELPY}|" "${HOME}/.config/zsh/.zshrc"
 fi
 
 if [[ -w "${HOME}"/.bashrc ]]; then
-    sed -i "s|PIPX_DEFAULT_PYTHON=.*|PIPX_DEFAULT_PYTHON=${PIPX_DEFAULT_PYTHON}|" "${HOME}"/.bashrc
+    sed -i "s|PIPX_DEFAULT_PYTHON=.*|PIPX_DEFAULT_PYTHON=\$HOME/${RELPY}|" "${HOME}/.bashrc"
 fi
 
 pipx ensurepath

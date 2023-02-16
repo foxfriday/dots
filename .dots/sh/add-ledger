@@ -5,15 +5,17 @@ source ./repo-functions.sh
 
 PSYS="${HOME}/Repos/system"
 mkdir -p "${PSYS}"
+mkdir -p "${HOME}/.dots/bin"
+mkdir -p "${HOME}/.config/emacs/pkgs"
 
 if [[ -x "${PSYS}/ledger/acprep" ]]; then
     echo "Found local ledger repository..."
-    cd "${PSYS}/ledger" || { echo "Unable to enter local repository." >&2; exit 1; }
+    cde "${PSYS}/ledger"
     ./acprep opt update
 else
     get_or_update "${PSYS}"/ledger ledger/ledger master
     if (( UPDATED > 0 )); then
-        cd "${PSYS}/ledger" || { echo "Unable to enter local repository." >&2; exit 1; }
+        cde "${PSYS}/ledger"
         ./acprep opt update
     fi
 fi
@@ -29,7 +31,7 @@ fi
 
 get_or_update "${PSYS}"/ledger-mode ledger/ledger-mode master
 if (( UPDATED > 0 )); then
-    cd "${PSYS}/ledger-mode" || { echo "Unable to enter local repository" >&2; exit 1; }
+    cde "${PSYS}/ledger-mode"
     mkdir build
     cp ./*.el build
     emacs -batch --eval '(package-initialize)' -f batch-byte-compile ./build/*.el

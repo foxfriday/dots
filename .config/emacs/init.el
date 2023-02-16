@@ -11,14 +11,17 @@
   (unless (package-installed-p pkg)
     (package-install pkg)))
 
-(defun extra-vc-install (path &optional name islocal)
-  "Install NAME from PATH."
-  (let* ((dname (if name name (file-name-base path)))
-         (iname (intern dname)))
-    (unless (package-installed-p iname)
-      (if islocal
-	(package-vc-install-from-checkout path dname)
-        (package-vc-install path iname)))))
+(defun extra-github-install (repo dest &optional branch)
+  "Clone BRANCH of REPO in DEST and install."
+  (let* ((remote (concat "https://github.com/" repo ".git"))
+         (name (nth 1 (string-split repo "/")))
+         (pkg (intern name))
+         (local (file-name-concat (expand-file-name dest) name))
+         (branch (if branch branch "main")))
+    (unless (file-directory-p local)
+      (vc-clone remote 'Git local branch))
+    (unless (package-installed-p pkg)
+      (package-vc-install-from-checkout local pkg))))
 
 ;;; Paths
 (extra-path (concat user-emacs-directory "lisp/"))
@@ -37,10 +40,10 @@
 (extra-install 'htmlize)
 (extra-install 'org-mime)
 (extra-install 'yasnippet)
-(extra-vc-install "~/Repos/emacs/date-functions" "date-functions" t)
-(extra-vc-install "~/Repos/emacs/extra" "extra" t)
-(extra-vc-install "~/Repos/emacs/ink" "ink" t)
-(extra-vc-install "~/Repos/emacs/office" "office" t)
+(extra-github-install "foxfriday/extra" "~/Repos/emacs")
+(extra-github-install "foxfriday/ink" "~/Repos/emacs")
+(extra-github-install "foxfriday/office" "~/Repos/emacs")
+(extra-github-install "foxfriday/date-functions" "~/Repos/emacs")
 
 (package-initialize)
 

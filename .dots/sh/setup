@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#
+# Setup configuration
+
+
+cd "${HOME}" || { echo "Unable to enter home directory." >&2; exit 1; }
+
+BRANCH="${1:-main}"
+git clone --branch "${BRANCH}" --bare https://github.com/foxfriday/dots.git "${HOME}/.dots.git"
+
+mapfile -t FILES < <(git --git-dir="$HOME/.dots.git/" --work-tree="$HOME" ls-files | sort)
+
+for FILE in "${FILES[@]}"; do
+    if [[ -f "${FILE}" ]]; then
+        DIR="${FILE%/*}"
+        if [[ -d ".dots_backup/${DIR}" ]]; then
+            cp "${FILE}" ".dots_backup/${FILE}"
+        else
+            mkdir -p ".dots_backup/${DIR}"
+            cp "${FILE}" ".dots_backup/${FILE}"
+        fi
+    fi
+done
+
+git --git-dir="$HOME/.dots.git/" --work-tree="$HOME" checkout "${BRANCH}"

@@ -71,16 +71,16 @@ fi
 [ -r "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
 
 if [ -d "$HOME/.pyenv/bin" ]; then
-    PATH="HOME/.pyenv/bin:$PATH"
+    PATH="$HOME/.pyenv/bin:$PATH"
     export PYENV_ROOT="$HOME/.pyenv"
     command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
     eval "$(pyenv init -)"
     eval "$(pyenv virtualenv-init -)"
-    export PIPX_DEFAULT_PYTHON=$HOME/.pyenv/versions/3.10.9/bin/python
+    export PIPX_DEFAULT_PYTHON=$HOME/.pyenv/versions/3.10.9/bin/python3.10
 fi
 
 if [ -f "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.bash ]; then
     source "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.bash
 fi
 
-command -v bat >&2 /dev/null && export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+command -v bat > /dev/null && export MANPAGER="sh -c 'col -bx | bat -l man -p'"

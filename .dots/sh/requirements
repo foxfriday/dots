@@ -38,10 +38,10 @@ function apt_install {
 declare -a CLI
 CLI+=(cmake
       curl
+      jq
       git
       nmap
       pass
-      rclone
       ripgrep
       vim
       webp
@@ -169,5 +169,5 @@ if [[ "$EUID" -ne 0 ]]; then
 fi
 
 apt update
-apt_install "${PKGS[*]}"
+apt_install ${PKGS[*]}
 [[ -v DICT ]] && systemctl enable dictd

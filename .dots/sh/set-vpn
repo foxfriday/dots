@@ -12,7 +12,7 @@ if [[ "$EUID" -ne 0 ]]; then
 fi
 
 # The first value will be set as default + autoconnect
-WG=($(nmcli con show | grep wireguard | cut -d' ' -f1 | tr '\n' ' ' ))
+mapfile -t WG < <(nmcli con show | grep wireguard | cut -d' ' -f1 | tr '\n' ' ' )
 
 # No ipv6, auto connect to first only
 AUTOCONNECT=yes
@@ -36,7 +36,7 @@ ufw allow in to 192.168.1.0/24
 ufw allow out to 192.168.1.0/24
 # allow exception to the vpn
 for CONN in "${WG[@]}"; do
-   EP=($(grep endpoint < /etc/NetworkManager/system-connections/"${CONN}".nmconnection | cut -d= -f2 | tr : ' '))
+   mapfile -t EP < <(grep endpoint < /etc/NetworkManager/system-connections/"${CONN}".nmconnection | cut -d= -f2 | tr : ' ')
    if [[ -v EP[0] ]] && [[ -v EP[1] ]]; then
        ufw allow out to "${EP[0]}" port "${EP[1]}" proto udp
        # send everything on VPN tunnel (equivalent to tun0 for openVPN)

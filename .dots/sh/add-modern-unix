@@ -17,7 +17,7 @@ source ./repo-functions.sh
 system_info
 
 for T in "${TARGETS[@]}"; do
-    get_github_asset "${T}" "${PROC}.deb"
+    get_github_asset "${T}" "${PROC}{PKG}"
     [[ -n "${RET}" ]] && PKGS+=("${RET}")
 done
 

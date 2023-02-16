@@ -1,19 +1,16 @@
+#!/usr/bin/env bash
+#
 # Tools to clone remote git repositories
-#
-# The main function is get_or_update. The remote can be the full path
-# or owner/repository if using github. If the branch is not provided,
-# it will ask for one. If the repository is cloned or updated the
-# variable UPDATED is set to 1
-#
-# get_or_update <local> <remote> <optional branch>
-#
-# To add a directory to PATH use:
-#
-# maybe_add_to_path new_path
+
 
 ### Check requirements
 command -v git > /dev/null || { echo "git requirement missing." >&2; exit 1; }
 command -v jq > /dev/null || { echo "jq requirement missing." >&2; exit 1; }
+
+# change directory or error
+cde () {
+    cd "${1}" || { echo "Unable to enter ${1}." >&2; exit 1; }
+}
 
 # Procure system information
 #
@@ -21,29 +18,35 @@ command -v jq > /dev/null || { echo "jq requirement missing." >&2; exit 1; }
 # SYS     system type, linux, darwin
 # ARCH    architecture, arm, x86_64
 # PROC    architecture, using x86_64 re-brand as amd64
+# PKG     system package
 # see: https://askubuntu.com/questions/601553/what-is-the-difference-between-x86-64-amd64-and-64-bit
 system_info () {
+    local ARCHINFO
     ARCHINFO=$(uname -sm)
     case "${ARCHINFO}" in
         "Darwin arm64")
             SYS=darwin
             ARCH=arm
             PROC=arm
+            PKG=""
             ;;
         "Darwin x86_64")
             SYS=darwin
             ARCH=x86_64
             PROC=amd64
+            PKG=""
             ;;
         "Linux armv*")
             SYS=linux
             ARCH=arm
             PROC=arm
+            PKG=""
             ;;
         "Linux x86_64")
             SYS=linux
             ARCH=x86_64
             PROC=amd64
+            PKG=".deb"
             ;;
         *) echo "Unable to determine architecture ${ARCHINFO}" >&2
            exit 1
@@ -51,34 +54,36 @@ system_info () {
     esac
 }
 
-# Download assets from github. The variable RET contains the name
+# Download assets from GitHub. The variable RET contains the name
 # of the download or an empty string in case of failure.
 #
 # Parameters
 # 1 repository
 # 2 architecture (e.g. linux.x86_64, amd64.deb)
 get_github_asset () {
+    local ASSET
+    local URL
+    local INFO
+    local REPO="https://api.github.com/repos/${1}/releases/latest"
     RET=""
-    REPO="https://api.github.com/repos/${1}/releases/latest"
     INFO=$(mktemp)
     curl -sL "${REPO}" -o "${INFO}" ||
-        { rm "${INFO}"; echo "Error acquiring info from ${1}" >&2; return 1; }
+        { rm "${INFO}"; echo "Error acquiring info from ${1}" >&2; exit 1; }
     URL=$(jq -r '.assets[].browser_download_url' "${INFO}" | grep "${2}" | grep -v musl)
     rm "${INFO}"
     ASSET="${HOME}/Downloads/${URL##*/}"
-    touch "${ASSET}"
+    touch "${ASSET}" || { echo "Unable to access destination ${ASSET}." >&2; exit 1; }
     echo "Downloading ${ASSET}..."
     curl -sL "${URL}" -o "${ASSET}" ||
-        { rm "${ASSET}"; echo "Error acquiring assets from ${URL}" >&2; return 1; }
+        { rm "${ASSET}"; echo "Error acquiring assets from ${URL}" >&2; exit 1; }
     echo "done!"
     RET="${ASSET}"
-    return 0
 }
 
 # Parameters
 # 1 Add to PATH if not present
 maybe_add_to_path () {
-    BIN="${1:-/usr/bin}"
+    local BIN="${1:-/usr/bin}"
     if [[ :"$PATH": == *:"$BIN":* ]]; then
         echo "Pyenv already in path"
         return 1
@@ -106,12 +111,13 @@ maybe_pick_branch () {
         BRANCH="${1}"
         return 0
     fi
+    local PTRN
     if [[ "${2##*/}" == emacs.git ]]; then
         PTRN=refs/heads/emacs
     else
         PTRN=refs/heads/
     fi
-    BRANCHES=($(git ls-remote "${2}" | grep "${PTRN}" | grep -v wip | cut -f2 | sed 's/refs\/heads\///'))
+    mapfile -t BRANCHES < <(git ls-remote "${2}" | grep "${PTRN}" | grep -v wip | cut -f2 | sed 's/refs\/heads\///')
     local -i N=0
     echo "Cloning ${2}"
     for B in "${BRANCHES[@]}"; do
@@ -127,6 +133,7 @@ maybe_pick_branch () {
         return 1
     fi
 }
+
 # Parameters:
 # 1 local repository
 # 2 remote
@@ -136,10 +143,12 @@ maybe_pick_branch () {
 # UPDATED=1 if cloned
 # UPDATED=2 if pulled
 get_or_update () {
+    local DESTINATION="${1}"
+    local REMOTE
+    local COMMON
     UPDATED=0
-    DESTINATION="${1}"
     if [ -d "${DESTINATION}/.git" ]; then
-        cd "${DESTINATION}" || { echo "already installed, but not accessible" >&2; exit 1; }
+        cde "${DESTINATION}"
         git remote update ||  { echo "unable to update remote" >&2; exit 1; }
         LOCAL=$(git rev-parse HEAD)
         REMOTE=$(git rev-parse '@{u}')
@@ -148,6 +157,7 @@ get_or_update () {
         echo "Checking ${2}"
         if [ "${LOCAL}" = "${REMOTE}" ]; then
             echo "Installed and up to date."
+            return 0
         elif [ "${LOCAL}" = "${COMMON}" ]; then
             git pull ||  { echo "unable to pull remote" >&2; exit 1; }
 	    BRANCH=$(git branch --show-current)
@@ -163,7 +173,8 @@ get_or_update () {
     else
         maybe_github "${2}"
         maybe_pick_branch "${3}" "${REPO}"
-        git clone --branch "${BRANCH}" --depth 1 "${REPO}" "${DESTINATION}"
+        git clone --branch "${BRANCH}" --depth 1 "${REPO}" "${DESTINATION}" ||
+            { echo "Unable to clone ${REPO}" >&2; return 1; }
         UPDATED=1
         return 0
     fi

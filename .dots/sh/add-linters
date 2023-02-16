@@ -4,6 +4,7 @@
 
 command -v pipx > /dev/null ||
     { echo "pipx must be installed and added to path" >&2; exit 1; }
+
 source ./repo-functions.sh
 
 if command -v ruff /dev/null; then
@@ -30,10 +31,15 @@ if [[ -n "${RET}" ]]; then
     echo "Expanding file"
     DEST="${HOME}"/Repos/system/
     RBIN=$(tar xzvf "${RET}" -C "${DEST}" | grep "ltex-ls$")
-    FBIN="${DEST}${RBIN#./}"
-    ln -sn "${FBIN}" "${HOME}"/.dots/bin/ltex-ls
-    ln -sn "${FBIN%-ls}-cli" "${HOME}"/.dots/bin/ltex-cli
-    rm "${RET}"
+    if [[ -n "${RBIN}" ]]; then
+        FBIN="${DEST}${RBIN#./}"
+        ln -sn "${FBIN}" "${HOME}"/.dots/bin/ltex-ls
+        ln -sn "${FBIN%-ls}-cli" "${HOME}"/.dots/bin/ltex-cli
+        rm "${RET}"
+    else
+        echo "Unable to detect ltex executable." >&2
+        echo "ltex was not added to the path." >&2
+    fi
 fi
 
 get_github_asset koalaman/shellcheck "${SYS}.${ARCH}"
@@ -41,7 +47,12 @@ if [[ -n "${RET}" ]]; then
     echo "Expanding file"
     DEST="${HOME}"/Repos/system/
     RBIN=$(tar xvf "${RET}" -C "${DEST}" | grep "shellcheck$")
-    FBIN="${DEST}${RBIN#./}"
-    mv "${FBIN}" "${HOME}"/.dots/bin/
-    rm "${RET}"
+    if [[ -n "${RBIN}" ]]; then
+        FBIN="${DEST}${RBIN#./}"
+        mv "${FBIN}" "${HOME}"/.dots/bin/
+        rm "${RET}"
+    else
+        echo "Unable to detect shellcheck executable." >&2
+        echo "shellcheck was not added to the path." >&2
+    fi
 fi

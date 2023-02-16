@@ -6,6 +6,6 @@ source repo-functions.sh
 
 get_or_update "${HOME}"/.fzf junegunn/fzf master
 if (( UPDATED > 0 )); then
-    "${HOME}"/.fzf/install --bin
-    "${HOME}"/.fzf/install --xdg --key-bindings --completion --no-update-rc
+    "${HOME}"/.fzf/install --bin &&
+        "${HOME}"/.fzf/install --xdg --key-bindings --completion --no-update-rc
 fi

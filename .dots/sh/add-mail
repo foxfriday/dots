@@ -29,10 +29,10 @@ mkdir -p "${HOME}/.config/emacs/pkgs"
 get_or_update "${PSYS}/isync" https://git.code.sf.net/p/isync/isync master
 if (( UPDATED > 0 )); then
     echo "Building isync (mbsync)"
-    cd "${PSYS}/isync" || { echo "Unable to enter local repository" >&2; exit 1; }
+    cde "${PSYS}/isync"
     ./autogen.sh
     mkdir build
-    cd build || { echo "Unable to enter build directory" >&2; exit 1; }
+    cde build
     ../configure
     make
 
@@ -43,7 +43,7 @@ if (( UPDATED > 0 )); then
         exit 1
     fi
     make clean
-    cd "${PSYS}/isync" || { echo "Unable to re-enter local repository" >&2; exit 1; }
+    cde "${PSYS}/isync"
     rm -r "${PSYS}/isync/build"
     # manual
     if [[ -e ./src/mbsync.1 ]]; then
@@ -57,7 +57,7 @@ fi
 get_or_update "${PSYS}"/mu djcb/mu
 if (( UPDATED > 0 )); then
     echo "updated"
-    cd "${PSYS}"/mu || { echo "Unable to enter local repository" >&2; exit 1; }
+    cde "${PSYS}"/mu
     ./autogen.sh
     make
 
