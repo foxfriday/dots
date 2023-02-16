@@ -1,0 +1,49 @@
+# -*- mode: sh; -*-
+
+export HOMEBREW_NO_ANALYTICS=1
+export ZSH_HIGHLIGHT_HIGHLIGHTERS_DIR=/usr/local/share/zsh-syntax-highlighting/highlighters
+safe_source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+### System Dependent Aliases and Functions
+export BROWSER="/usr/bin/open -a /Applications/Firefox.app"
+export READER="/usr/bin/open -a /Applications/Skim.app"
+# modify LSCOLOR if you want different colors with ls
+alias ls="ls -GO"
+# quick update
+alias update="sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup;"
+# umount doesn't work on darwin, not to mention the os pukes on drives
+clean_unmount () {
+    if mount | grep "$1" > /dev/null; then
+        if [ -d "$1/.fseventsd" ]; then
+            rm -r "$1/.fseventsd"
+        fi
+        if [ -d "$1/.Trashes" ]; then
+            rm -r "$1/.Trashes"
+        fi
+        if [ -d "$1/.DS_Store" ]; then
+            rm -r "$1/.DS_Store"
+        fi
+        if [ -d "$1/.Spotlight-V100" ]; then
+            rm -r "$1/.Spotlight-V100"
+        fi
+        diskutil umount "$1"
+    else
+        echo "Not a mount"
+    fi
+}
+alias umount="clean_unmount"
+
+if type brew &>/dev/null; then
+    path+=(/usr/local/sbin)
+    fpath+=$(brew --prefix)/share/zsh/site-functions
+    if type pyenv > /dev/null; then
+        # make pyenv work well with brew
+        # see: https://github.com/pyenv/pyenv/issues/106
+        function brew { env PATH="${PATH//$(pyenv root)\/shims:/}" brew; }
+    fi
+    # Assumes bzip2, zlib, and openblas installed, all required by Python
+    export LDFLAGS="-L/usr/local/opt/bzip2/lib -L/usr/local/opt/zlib/lib -L/usr/local/opt/openblas/lib -L/usr/local/opt/llvm/lib"
+    export CPPFLAGS="-I/usr/local/opt/bzip2/include -I/usr/local/opt/zlib/include -I/usr/local/opt/openblas/include -I/usr/local/opt/llvm/include"
+    export PKG_CONFIG_PATH="/usr/local/opt/openblas/lib/pkgconfig"
+    OB=$(brew --prefix openblas)
+    export OPENBLAS="${OB}"
+fi

@@ -1,0 +1,7 @@
+# one command line option per line
+
+-f best
+# continue, ignore errors, and don't overwrite
+-ciw
+# Output
+-o ~/Media/videos/%(title)s.%(ext)s
