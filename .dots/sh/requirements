@@ -115,6 +115,7 @@ EMACSEXTRA+=(dictd
 
 declare -a TEX
 TEX+=(bibtool
+      chktex
       latexmk
       texlive
       texlive-lang-english

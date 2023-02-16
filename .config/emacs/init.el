@@ -21,7 +21,7 @@
     (unless (file-directory-p local)
       (vc-clone remote 'Git local branch))
     (unless (package-installed-p pkg)
-      (package-vc-install-from-checkout local pkg))))
+      (package-vc-install-from-checkout local name))))
 
 ;;; Paths
 (extra-path (concat user-emacs-directory "lisp/"))

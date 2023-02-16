@@ -5,7 +5,7 @@
 # set -x
 
 ### Check requirements
-command -t jq > /dev/null || { echo "jq requirement missing." >&2; exit 1; }
+command -v jq > /dev/null || { echo "jq requirement missing." >&2; exit 1; }
 
 ### Setup
 RELEASE_INFO="https://api.github.com/repos/JetBrains/JetBrainsMono/releases/latest"
