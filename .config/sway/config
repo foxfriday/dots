@@ -1,0 +1,184 @@
+# Read `man 5 sway` for a complete reference.
+
+# Set mod key (Mod1=<Alt>, Mod4=<Super>)
+set $mod Mod4
+
+### Appearance
+# Wallpaper
+output *  bg #000000 solid_color
+# Configure border style <normal|pixel 1|pixel xx|none|pixel>
+default_border pixel 1
+default_floating_border pixel 1
+# Hide borders
+# hide_edge_borders none
+# leave focus even after moving mouse
+focus_follows_mouse no
+### Keybindings
+# Terminal
+bindsym $mod+Return exec foot
+# kill focused window
+bindsym $mod+Shift+q kill
+# Drag floating windows by holding down $mod and left mouse button.
+# Resize them with right mouse button + $mod.
+# Despite the name, also works for non-floating windows.
+# Changing normal to inverse reverses left/right mouse buttons
+floating_modifier $mod normal
+# Reload the configuration file
+bindsym $mod+Shift+r reload
+# The application launcher
+bindsym $mod+d exec wofi -i -S drun -W 300 -L 10 -G
+# Include terminal commands
+bindsym $mod+Shift+d exec wofi -i -S run -W 300 -L 10 -t foot -G
+# Log out of Wayland session
+# bindsym $mod+Shift+x exec swaynag -t warning -m 'Really exit?' -B 'Yes, exit' 'swaymsg exit'
+# Move your focus around
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+# Move the focused window with the same, but add Shift
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+# split orientation
+bindsym $mod+Shift+h splith
+bindsym $mod+Shift+v splitv
+# toggle fullscreen mode for the focused container
+bindsym $mod+Shift+f fullscreen toggle
+# Swap focus between the tiling area and the floating area
+bindsym $mod+space focus mode_toggle
+# Toggle the current focus between tiling and floating mode
+bindsym $mod+Shift+space floating toggle
+# Show scratchpad
+# bindsym $mod+x scratchpad show
+# Move to scratchpad
+# bindsym $mod+Shift+x move scratchpad
+# move workspaces between screens with < and >
+bindsym $mod+greater move workspace to output right
+bindsym $mod+less move workspace to output left
+# navigate workspaces
+workspace_auto_back_and_forth yes
+# bindsym $mod+b workspace back_and_forth
+# bindsym $mod+Ctrl+Right workspace next
+# bindsym $mod+Ctrl+Left workspace prev
+# dismiss notifications (requires Mako)
+bindsym $mod+period exec makoctl dismiss -a
+
+### Idle and Lock
+exec swayidle -w \
+    timeout 300 'swaylock -f -c 000000' \
+    timeout 600 'swaymsg "output * dpms off"' resume 'swaymsg "output * dpms on"' \
+    before-sleep 'swaylock -f -c 000000'
+# lock your screen after 300 seconds of inactivity, then turn off displays after
+# another 300 seconds, and turn your screens back on when resumed. It will also
+# lock your screen before your computer goes to sleep.
+
+### Workspaces and Window Assigments
+# Names
+set $ws1 1
+set $ws2 2
+set $ws3 3
+set $ws4 4
+set $ws5 5
+set $ws6 6
+set $ws7 7
+set $ws8 8
+set $ws9 9:emacs
+set $ws0 0:mail
+
+# Switch to workspace
+bindsym $mod+1 workspace $ws1
+bindsym $mod+2 workspace $ws2
+bindsym $mod+3 workspace $ws3
+bindsym $mod+4 workspace $ws4
+bindsym $mod+5 workspace $ws5
+bindsym $mod+6 workspace $ws6
+bindsym $mod+7 workspace $ws7
+bindsym $mod+8 workspace $ws8
+bindsym $mod+e workspace $ws9
+bindsym $mod+m workspace $ws0
+
+# Move to workspace with focused container
+bindsym $mod+Shift+1 move container to workspace $ws1; workspace $ws1
+bindsym $mod+Shift+2 move container to workspace $ws2; workspace $ws2
+bindsym $mod+Shift+3 move container to workspace $ws3; workspace $ws3
+bindsym $mod+Shift+4 move container to workspace $ws4; workspace $ws4
+bindsym $mod+Shift+5 move container to workspace $ws5; workspace $ws5
+bindsym $mod+Shift+6 move container to workspace $ws6; workspace $ws6
+bindsym $mod+Shift+7 move container to workspace $ws7; workspace $ws7
+bindsym $mod+Shift+8 move container to workspace $ws8; workspace $ws8
+bindsym $mod+Shift+e move container to workspace $ws9; workspace $ws9
+bindsym $mod+Shift+m move container to workspace $ws0; workspace $ws0
+
+# floating window ssigments
+# To see the properties of the windows:
+# swaymsg -t get_tree
+for_window [app_id="gnome-calculator"] floating enable
+for_window [app_id="pavucontrol"] floating enable
+# Open applications on specific workspaces
+assign [app_id="emacs"] $ws9
+assign [app_id="thunderbird"] $ws0
+assign [class="Signal"] $ws0
+# switch to workspace with urgent window automatically
+for_window [urgent=latest] focus
+
+### Resize
+mode "resize" {
+    bindsym Left resize shrink width 10 px or 10 ppt
+    bindsym Down resize grow height 10 px or 10 ppt
+    bindsym Up resize shrink height 10 px or 10 ppt
+    bindsym Right resize grow width 10 px or 10 ppt
+    # exit resize mode: Enter or Escape
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+r mode "resize"
+
+### Screenshot
+mode "screenshot" {
+    bindsym a exec "XDG_SCREENSHOTS_DIR=~/Downloads grimshot save area"
+    bindsym w exec "XDG_SCREENSHOTS_DIR=~/Downloads grimshot save active"
+    # exit resize mode: Enter or Escape
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+Shift+s mode "screenshot"
+
+### Sway Status Bar
+# Read `man 5 sway-bar` for more information about this section.
+bar {
+    swaybar_command waybar
+    position bottom
+}
+
+### Displays / Outputs
+set $laptop eDP-1
+bindswitch lid:on output $laptop disable
+bindswitch lid:off output $laptop enable
+
+### Other
+# Make caps escape
+input * xkb_options "caps:escape"
+# Systemmd - monitor set up with Kanshi, nm-applets, dropbox, etc
+exec_always "systemctl --user import-environment {,WAYLAND_}DISPLAY SWAYSOCK; systemctl --user start sway-session.target"
+
+# Volume keys only manage default audio. You can select the default with the
+# checkmark in the 'output devices' tab of Pavucontrol
+set $WOBSOCK $XDG_RUNTIME_DIR/wob.sock
+exec rm -f $WOBSOCK && mkfifo $WOBSOCK && tail -f $WOBSOCK | wob
+bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5% \
+    && pactl get-sink-volume @DEFAULT_SINK@ | head -n 1| \
+    awk '{print substr($5, 1, length($5)-1)}' > $WOBSOCK
+bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5% \
+    && pactl get-sink-volume @DEFAULT_SINK@ | head -n 1 | \
+    awk '{print substr($5, 1, length($5)-1)}' > $WOBSOCK
+bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+# Brightness
+bindsym XF86MonBrightnessDown exec brightnessctl set 5%- | \
+    sed -En 's/.*\(([0-9]+)%\).*/\1/p' > $WOBSOCK
+bindsym XF86MonBrightnessUp exec brightnessctl set +5% | \
+    sed -En 's/.*\(([0-9]+)%\).*/\1/p' > $WOBSOCK
+# bindsym XF86AudioPlay exec playerctl play-pause
+# bindsym XF86AudioNext exec playerctl next
+# bindsym XF86AudioPrev exec playerctl previous

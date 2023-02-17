@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+#
+# Download you tube channel.
+
+function print_help ()
+{
+    echo "Downloads a You Tube channel."
+    echo ""
+    echo "USAGE:"
+    echo "    ${0##*/} <channel>"
+}
+
+youtube-dl --f best -ciw -o "%(title)s.%(ext)s" -v "${1}"

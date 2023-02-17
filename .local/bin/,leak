@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+#
+# Check for leaks using https://ipleak.net
+
+command -v jq > /dev/null || { echo "jq required but not found in path." >&2; exit 1; }
+
+curl -s https://ipleak.net/json/ | jq
+# and in the DNS
+session=$(echo mrfox | sha1sum)
+for i in $(seq 5000 5100);
+do
+    curl -s "https://${session:0:40}-${i}.ipleak.net/dnsdetection/" | jq
+    sleep 1
+done

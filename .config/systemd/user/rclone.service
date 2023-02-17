@@ -1,0 +1,7 @@
+[Unit]
+Description=RClone Backup
+Documentation=man:rclone
+
+[Service]
+Type=simple
+ExecStart=%h/.dots/sh/remote

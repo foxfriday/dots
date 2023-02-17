@@ -11,6 +11,13 @@ init:		## Initialize repository
 	git init --bare "${HOME}/.dots.git"
 	git --git-dir="${HOME}/.dots.git/" --work-tree="${HOME}" config --local status.showUntrackedFiles no
 
+.PHONY: system
+system:		## Activate additional system services
+	systemctl --user enable --now blueman.service
+	systemctl --user enable --now dropbox.service
+	systemctl --user enable --now kanshi.service
+	systemctl --user enable --now rclone.timer
+
 .PHONY: emacsd
 emacsd:		## Compile Emacs' configuration files
 	emacs -batch --eval '(package-initialize)' -f batch-byte-compile ${HOME}/.config/emacs/lisp/*.el

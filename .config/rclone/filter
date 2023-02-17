@@ -1,0 +1,11 @@
++ /Calendar/**
++ /.dots.git/**
+- /Documents/tmp/
++ /Documents/**
+- /Dropbox/.dropbox**
+- /Dropbox/tmp/
++ /Dropbox/**
++ /Media/**
+- /Repos/system/
++ /Repos/**.git/**
+- **

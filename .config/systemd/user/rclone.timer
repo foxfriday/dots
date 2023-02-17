@@ -1,0 +1,12 @@
+[Unit]
+Description=RClone Backup Timer
+Documentation=man:rclone
+
+[Timer]
+Unit=rclone.service
+OnBootSec=15m
+OnUnitInactiveSec=240m
+OnActiveSec=1m
+
+[Install]
+WantedBy=timers.target

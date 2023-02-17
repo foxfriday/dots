@@ -1,0 +1,14 @@
+[Unit]
+Description=Dropbox as a user service
+
+[Service]
+Type=simple
+# Waits until online
+ExecStartPre=sh -c "sleep 10 && until systemctl is-active network-online.target; do sleep 1; done"
+ExecStart=%h/.dropbox-dist/dropboxd
+Restart=on-failure
+RestartSec=1min
+Environment=DISPLAY=:0
+
+[Install]
+WantedBy=sway-session.target

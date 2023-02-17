@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+#
+# This is just a wrapper for 'imagescan' with the addition that it converts
+# the results to pdf. It requires img2pdf, which may be installed with pipx.
+# This script is set up for the Dell MFP E514dw scanner in the network
+# Use 'scanimage -L' to list available devices
+# --help -d <device> to list its capabilities
+# Note that brightness and contrast are a device dependent option.
+
+PROGRAM=${0##*/}
+VERBOSE=:
+declare -a FLAGS
+
+function print_help () {
+    cat <<END
+Scan images into a pdf file.
+
+USAGE:
+    ${PROGRAM} (options) outputname
+
+OPTIONS:
+    -b
+         Batch mode. Feed images through ADF. The default is the bedscan.
+    -h
+         Print this help.
+    -v
+         Verbose output, including a progress counter.
+    -B
+         Adjust brightness -100...100%, default is 0.
+    -C
+         Adjust contrast -100...100%, default is 0.
+END
+}
+
+while getopts ':bhvB:C:' VAL; do
+    case $VAL in
+        b) FLAGS+=(--source=ADF --batch=%d_temp_out.jpeg)
+           ;;
+        h) print_help
+           exit 0
+           ;;
+        v) VERBOSE='echo'
+           FLAGS+=(--verbose --progress)
+           ;;
+        B) FLAGS+=(--brightness "${OPTARGS}")
+           ;;
+        C) FLAGS+=(--contrast "${OPTARGS}")
+           ;;
+        :) echo "Argument missing for ${OPTARGS}" >&2
+           exit 1
+           ;;
+        *) echo "Unrecognized option ${OPTARGS}" >&2
+           exit 1
+           ;;
+    esac
+done
+shift $((OPTIND -1))
+OUTPUT="${1:-scanner_output.pdf}"
+FLAGS+=(--format=jpeg --device-name="airscan:w1:Dell MFP E514dw")
+${VERBOSE} scanimage "${FLAGS[@]}"
+scanimage "${FLAGS[@]}"
+
+${VERBOSE} creating pdf
+TMP=$(find . -type f -regextype posix-extended -regex './[0-9]+_temp_out.jpeg' | sort -n | tr \\n ' ')
+[[ -z "${TMP}" ]] && img2pdf "${INTERMEDIATE}" "${OUTPUT}" && rm "${INTERMEDIATE}"

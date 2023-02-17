@@ -1,0 +1,14 @@
+# -*- conf -*-
+
+set statusbar-h-padding 0
+set statusbar-v-padding 0
+set page-padding 1
+set selection-clipboard clipboard
+set font "monospace 14"
+set adjust-open "best-fit"
+set window-title-basename "true"
+
+set synctex true
+set synctex-editor-command "emacsclient +%{line} %{input}"
+
+map <C-i> recolor

@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+#
+# Take screenshots with grim
+# Dependencies:
+# - grim
+
+PROGRAM="${0##*/}"
+function print_help() {
+    cat <<-END
+Take screenshots. By default it takes shot of the entire screen.
+
+USAGE:
+    ${PROGRAM} (options)
+
+OPTIONS:
+    -h
+        Print this help.
+    -p
+        Pick area.
+    -w
+        Selected window
+END
+}
+
+DEST="${HOME}"/Downloads/$(date +%Y-%m-%dT%H:%M%z)_screenshot.png
+while getopts :hpw opt; do
+   case $opt in
+       h) print_help
+          exit 0
+          ;;
+       p) grim -g "$(slurp)" "${DEST}"
+          exit 0
+          ;;
+       w) grim -g \
+               "$(swaymsg -t get_tree | jq -j '.. | select(.type?) | select(.focused).rect | "\(.x),\(.y) \(.width)x\(.height)"')" \
+               "${DEST}"
+          exit 0
+          ;;
+       *) echo "Unrecognized option $OPTARG." >&2
+          exit 1
+          ;;
+   esac
+done
+
+grim "${DEST}"

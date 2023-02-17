@@ -1,0 +1,60 @@
+* {
+    font-size: 16px;
+    font-family: monospace;
+}
+
+window#waybar,
+#workspaces,
+#mode,
+#network,
+#pulseaudio,
+#battery,
+#tray,
+#clock {
+    padding: 0 2px;
+    background: #000000;
+    color: #f5f5f5;
+}
+
+#workspaces button {
+    padding: 0 2px;
+    background: #000000;
+    color: #f5f5f5;
+}
+#workspaces button.focused {
+    color: #268bd2;
+}
+#workspaces button.urgent {
+    color: #8b0000;
+}
+#pulseaudio {
+    color: #32cd32;
+}
+#pulseaudio.muted {
+    color: #8b0000;
+}
+#pulseaudio.bluetooth {
+    color: #268bd2;
+}
+#battery {
+    color: #32cd32;
+}
+#battery.warning {
+    color: #008000;
+}
+#battery.critical {
+    color: #8b0000;
+}
+#network {
+    color: #f5f5f5;
+}
+#network.disconnected {
+    background: #8b0000;
+    color: #f5f5f5;
+}
+#network.ethernet {
+    color: #32cd32;
+}
+#network.wifi {
+    color: #268bd2;
+}

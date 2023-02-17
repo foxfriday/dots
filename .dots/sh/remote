@@ -1,0 +1,25 @@
+#!/bin/bash
+#
+# Back up home directory with rclone
+
+LOG="${HOME}/.cache/logs/rclone.log"
+FILTER="${HOME}/.config/rclone/filter"
+DT=$(date +%Y-%m-%dT%H-%M-%S)
+
+# Check connection but don't throw an error.
+# If no connection no point retrying right away.
+nc -zw1 backblaze.com 443 ||
+    { echo "[${DT}] WARNING: No internet connection." >> "${LOG}"; exit 0; }
+
+PROG="${0##*/}"
+pidof -x "${PROG}" -o %PPID > /dev/null &&
+    { echo "[${DT}] WARNING: ${PROG} already running" >> "${LOG}"; exit 1; }
+
+declare -a FLAGS
+# --progress
+FLAGS+=(--log-file="${LOG}"
+        --fast-list
+        --transfers=30
+        --filter-from="${FILTER}")
+
+rclone sync "${FLAGS[@]}" "${HOME}/" castafiore:
