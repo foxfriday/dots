@@ -2,5 +2,5 @@
 #
 # Convert a DOI to bibtex using doi.org API
 
-curl -LH "Accept: application/x-bibtex; charset=utf-8" https://doi.org/"$1"
+curl -LH "Accept: application/x-bibtex; charset=utf-8" https://doi.org/"$1" 2> /dev/null
 echo ""
