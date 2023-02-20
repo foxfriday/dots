@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+#
+# Converts online HTML to an org file.
+
+function print_help ()
+{
+    echo "Converts a website into a local org file."
+    echo ""
+    echo "USAGE:"
+    echo "    ${0##*/} <url> <file>"
+}
+
+pandoc -f html -t org --request-header User-Agent:"Mozilla/5.0" "${1}" -o "${2}"
