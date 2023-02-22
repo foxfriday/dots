@@ -27,8 +27,8 @@
 
 (setq org-agenda-show-future-repeats 'next
       org-agenda-compact-blocks t
-      org-agenda-todo-ignore-scheduled t
-      org-agenda-todo-ignore-deadlines t
+      org-agenda-todo-ignore-scheduled 'future
+      org-agenda-todo-ignore-deadlines 'far
       org-agenda-restore-windows-after-quit t
       org-agenda-include-diary t
       org-stuck-projects '("+@project" ("TODO") nil "")
