@@ -6,11 +6,13 @@
 ;;; Code:
 (require 'yasnippet)
 
+(add-to-list 'auto-mode-alist '("\\.ledger\\'" . ledger-mode))
 (add-hook 'ledger-mode-hook 'yas-minor-mode)
 (add-hook 'ledger-mode-hook 'outline-minor-mode)
 (add-hook 'ledger-mode-hook 'ledger-flymake-enable)
 
 (with-eval-after-load 'ledger-mode
+  (require 'ledger-flymake)
   (setq-local cape-dict-file "~/Repos/ledger/data/dictionary.txt"
               completion-at-point-functions (list #'cape-dict))
   (require 'yasnippet)
