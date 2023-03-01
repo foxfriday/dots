@@ -9,6 +9,7 @@
 
 (require 'evil)
 (require 'yasnippet)
+(require 'extra)
 
 ;;; Flymake
 ; check with flymake-running-backends
@@ -26,6 +27,7 @@
     "q" 'quit-window)
   (evil-define-key 'normal flymake-mode-map
     "gl" 'flymake-show-buffer-diagnostics
+    "gL" 'flymake-show-project-diagnostics
     "]e" 'flymake-goto-next-error
     "[e" 'flymake-goto-prev-error))
 
@@ -46,9 +48,7 @@
 
 ; Done added AFTER eglot is initialized (verify with flymake-running-backends)
 (add-hook 'eglot-managed-mode-hook
-          (lambda () (cond ((derived-mode-p 'python-base-mode)
-                            (add-hook 'flymake-diagnostic-functions 'python-flymake nil t))
-                           ((derived-mode-p 'tex-mode)
+          (lambda () (cond ((derived-mode-p 'tex-mode)
                             (require 'latex-flymake)
                             (add-hook 'flymake-diagnostic-functions 'LaTeX-flymake nil t))
                            (t nil))))
@@ -63,6 +63,7 @@
   (evil-define-key 'normal eglot-mode-map
     "gR" 'eglot-rename
     "ga" 'eglot-code-actions
+    "gf" 'eglot-format-buffer
     "gr" 'xref-find-references
     "gd" 'xref-find-definitions
     "gh" 'eldoc))
@@ -92,6 +93,8 @@
     (async-shell-command "jupyter-notebook" log-buffer log-buffer)))
 
 (with-eval-after-load 'python
+  (keymap-set python-ts-mode-map "M-q" (lambda () (extra-format-buffer "docformatter")))
+  (keymap-set python-ts-mode-map "M-b" (lambda () (extra-format-buffer "black")))
   (setq python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-")
         python-shell-dedicated 'project
         python-shell-interpreter "ipython"

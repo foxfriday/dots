@@ -13,13 +13,27 @@ else
     pipx install ruff
 fi
 
-if command -v pylsp /dev/null; then
-    pipx upgrade python-lsp-server
+if command -v docformatter /dev/null; then
+    pipx upgrade docformatter
 else
-    pipx install "python-lsp-server[all]";
-    pipx inject python-lsp-server python-lsp-black;
-    pipx inject python-lsp-server pyls-isort;
-    pipx inject python-lsp-server pylsp-mypy;
+    pipx install "docformatter[tomli]"
+fi
+
+if command -v black /dev/null; then
+    pipx upgrade black
+else
+    pipx install black
+fi
+
+if command -v pylsp /dev/null; then
+    pipx upgrade --include-injected python-lsp-server
+else
+    pipx install python-lsp-server
+    pipx inject python-lsp-server rope
+    pipx inject python-lsp-server python-lsp-black
+    pipx inject python-lsp-server pyls-isort
+    pipx inject python-lsp-server pylsp-mypy
+    pipx inject python-lsp-server python-lsp-ruff
 fi
 
 mkdir -p "${HOME}/.dots/bin"
@@ -33,6 +47,12 @@ if [[ -n "${RET}" ]]; then
     RBIN=$(tar xzvf "${RET}" -C "${DEST}" | grep "ltex-ls$")
     if [[ -n "${RBIN}" ]]; then
         FBIN="${DEST}${RBIN#./}"
+	if [[ -L "${HOME}"/.dots/bin/ltex-ls ]]; then
+            rm "${HOME}"/.dots/bin/ltex-ls
+	fi
+	if [[ -L "${HOME}"/.dots/bin/ltex-cli ]]; then
+            rm "${HOME}"/.dots/bin/ltex-cli
+	fi
         ln -sn "${FBIN}" "${HOME}"/.dots/bin/ltex-ls
         ln -sn "${FBIN%-ls}-cli" "${HOME}"/.dots/bin/ltex-cli
         rm "${RET}"
