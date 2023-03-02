@@ -4,17 +4,46 @@
 
 function print_help ()
 {
-    echo "Word count in a file."
-    echo ""
-    echo "USAGE:"
-    echo "    ${0##*/} <file> <top n>"
+    cat <<-END
+Count words in a file. By default it shows the top 10 words.
+
+USAGE:
+    ${0##*/} (options) <file>
+
+OPTIONS:
+    -h
+        Print this help.
+    -n
+        The number of words to display.
+    -l
+        Show less frequent words first.
+END
 }
 
+while getopts ":hn:l" opt; do
+    case $opt in
+        h) print_help
+           exit 0
+           ;;
+        n) NUMBER=${OPTARG}
+           ;;
+        l) SORTFLAG=n
+           ;;
+        :) echo "No required argument supplied for $OPTARG" >&2
+           exit 1
+           ;;
+        *) echo "Unrecognized option $OPTARG" >&2
+           exit 1
+           ;;
+    esac
+done
+
+shift $((OPTIND -1))
 
 tr '[:upper:]' '[:lower:]' < "${1}" |
   grep -oE "[a-z\']{2,}" |
   sort |
   grep -Fvwf "${HOME}/.config/dict/stop-words.txt" |
   uniq -c |
-  sort -nr |
-  head "-${2:-10}"
+  sort "-${SORTFLAG:-nr}" |
+  head "-${NUMBER:-10}"

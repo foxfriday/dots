@@ -93,8 +93,8 @@
     (async-shell-command "jupyter-notebook" log-buffer log-buffer)))
 
 (with-eval-after-load 'python
-  (keymap-set python-ts-mode-map "M-q" (lambda () (extra-format-buffer "docformatter")))
-  (keymap-set python-ts-mode-map "M-b" (lambda () (extra-format-buffer "black")))
+  (keymap-set python-ts-mode-map "M-q" (lambda () (interactive) (extra-format-buffer "docformatter")))
+  (keymap-set python-ts-mode-map "M-b" (lambda () (interactive) (extra-format-buffer "black")))
   (setq python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-")
         python-shell-dedicated 'project
         python-shell-interpreter "ipython"
