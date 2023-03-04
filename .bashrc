@@ -59,8 +59,8 @@ if ! shopt -oq posix; then
 fi
 
 ### GNU Pass
-if [ -d "$HOME/Repos/pass" ]; then
-    export PASSWORD_STORE_DIR="$HOME/Repos/pass"
+if [ -d "$HOME/Documents/pass" ]; then
+    export PASSWORD_STORE_DIR="$HOME/Documents/pass"
 fi
 
 ## Additional packages
