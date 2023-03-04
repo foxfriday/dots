@@ -57,8 +57,8 @@ if [[ -d "${HOME}/.dots/bin" ]]; then
     path+=("${HOME}/.dots/bin")
 fi
 ### GNU Pass
-if [ -d "$HOME/Repos/pass" ]; then
-    export PASSWORD_STORE_DIR="$HOME/Repos/pass"
+if [ -d "$HOME/Documents/pass" ]; then
+    export PASSWORD_STORE_DIR="$HOME/Documents/pass"
 fi
 ### Bat
 if command -v bat >/dev/null; then

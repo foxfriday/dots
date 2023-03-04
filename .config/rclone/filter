@@ -1,11 +1,11 @@
+- **.git/
 + /Calendar/**
-+ /.dots.git/**
 - /Documents/tmp/
 + /Documents/**
++ /.dots/drivers/**
 - /Dropbox/.dropbox**
 - /Dropbox/tmp/
 + /Dropbox/**
 + /Media/**
-- /Repos/system/
-+ /Repos/**.git/**
+- /Repos/
 - **
