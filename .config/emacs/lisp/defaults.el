@@ -26,9 +26,9 @@
   "Do the right thing when pressing <RET> in terminal.")
 
 ;; Defaults paths
-(defvar my-quick-notes (eval-when-compile
+(defvar my-org-files (eval-when-compile
                          (car (string-split
-                               (shell-command-to-string "find ~ -type d -name quick-notes")
+                               (shell-command-to-string "find ~ -type d -name org-files")
                                "\n"
                                t)))
   "File with a list of paths to loose org notes.")
@@ -41,7 +41,7 @@
   "File with a list of paths to org agenda files.")
 
 (defvar my-work-notes "~/Repos/notes/cs/"
-  "Directory with quick notes files.")
+  "Directory with work notes files.")
 
 (defvar my-diary (eval-when-compile
                     (car (string-split
