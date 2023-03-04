@@ -23,7 +23,7 @@
 (evil-set-initial-state 'org-agenda-mode 'normal)
 
 (if my-agenda (setq org-agenda-files my-agenda))
-(if my-quick-notes (setq org-directory my-quick-notes))
+(if my-org-files (setq org-directory my-org-files))
 
 (setq org-agenda-show-future-repeats 'next
       org-agenda-compact-blocks t
@@ -135,7 +135,7 @@
       org-global-properties '(("Effort_ALL" . "0:10 0:30 1:00 2:00 3:00 4:00 8:00"))
       org-clock-out-remove-zero-time-clocks t
       org-clock-report-include-clocking-task t
-      org-archive-location "archive.org::* Archived from %s")
+      org-archive-location "~/Documents/archive/archive.org::* Archived")
 
 ;;; Bindings
 (keymap-set org-mode-map "C-c [" 'org-cite-insert)
