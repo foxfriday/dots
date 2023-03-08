@@ -23,3 +23,11 @@ FLAGS+=(--log-file="${LOG}"
         --filter-from="${FILTER}")
 
 rclone sync "${FLAGS[@]}" "${HOME}/" castafiore:
+
+# local server backup
+DT=$(date +%Y-%m-%dT%H-%M-%S)
+REMOTE=lulu:/backup/castafiore
+FLAGS+=(--backup-dir="${REMOTE}/${DT}"
+        --delete-after)
+
+rclone sync "${FLAGS[@]}" "${HOME}/" "${REMOTE}/now"
