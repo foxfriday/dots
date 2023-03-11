@@ -2,9 +2,53 @@
 #
 # Make a quick commit into GIT WIP branch.
 
-BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-if [ "${BRANCH}" != "wip" ]; then
-  echo "In ${BRANCH}. Move to 'wip' branch... commit aborted." >&2
-  exit 1;
-fi
-git add . && git commit -m $(date +%Y-%m-%dT%H:%M%z)
+DT=$(date +%Y-%m-%dT%H:%M%z)
+PROGRAM=${0##*/}
+
+function print_help () {
+    cat <<-END
+Various git shortcuts used to save work in progress.
+
+USAGE:
+    ${PROGRAM} (options)
+
+OPTIONS:
+    -h
+        Print this help.
+    -n
+        Add to notes.
+    -o
+        Add to WIP branch.
+END
+}
+
+function git_note () {
+    git add . && git commit -m "ADD: ${DT}"
+}
+
+function git_organize () {
+    BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+    if [ "${BRANCH}" != "wip" ]; then
+        echo "In ${BRANCH}. Move to 'wip' branch... commit aborted." >&2
+        exit 1;
+    fi
+    git add . && git commit -m "WIP: ${DT}"
+}
+
+while getopts ":hno" opt; do
+    case $opt in
+        h) print_help
+           exit 0
+           ;;
+        n) git_note
+           ;;
+        o) git_organize
+           ;;
+        :) echo "No required argument supplied for $OPTARG" >&2
+           exit 1
+           ;;
+        *) echo "Unrecognized option $OPTARG" >&2
+           exit 1
+           ;;
+    esac
+done
